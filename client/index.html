@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Delivery MVP</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>🍔 Mini Food Delivery</h1>
+    
+    <div id="app">
+        <!-- Restaurant List -->
+        <div id="restaurant-list">
+            <h2>Select a Restaurant</h2>
+            <div id="restaurants-container">Loading...</div>
+        </div>
+
+        <!-- Menu List -->
+        <div id="menu-view" class="hidden">
+            <button class="btn" onclick="showRestaurantList()">← Back</button>
+            <div id="selected-restaurant"></div>
+            <h3>Menu</h3>
+            <div id="menu-container"></div>
+        </div>
+
+        <!-- Order Success -->
+        <div id="order-success" class="hidden">
+            <div class="card" style="text-align: center; color: green;">
+                <h2>✅ Order Placed!</h2>
+                <p>Order ID: <span id="order-id"></span></p>
+                <p>Status: <span id="order-status">PENDING</span></p>
+                <p>Driver: <span id="driver-name">Finding driver...</span></p>
+                <button class="btn" onclick="window.location.reload()">Order Again</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart -->
+    <div id="cart" class="cart-summary hidden">
+        <span>Total: Rp <span id="cart-total">0</span></span>
+        <button class="btn" onclick="placeOrder()">Order Now</button>
+    </div>
+
+    <script>
+        const GATEWAY_URL = 'http://localhost:4000';
+        let currentRestaurant = null;
+        let cart = [];
+
+        async function graphql(query, variables = {}) {
+            const res = await fetch(GATEWAY_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query, variables })
+            });
+            return res.json();
+        }
+
+        // Load Restaurants
+        async function loadRestaurants() {
+            const query = `query { restaurants { id name image } }`;
+            const { data } = await graphql(query);
+            const container = document.getElementById('restaurants-container');
+            container.innerHTML = data.restaurants.map(r => `
+                <div class="card restaurant-header">
+                    <img src="${r.image}" class="restaurant-img">
+                    <div>
+                        <h3>${r.name}</h3>
+                        <button class="btn" onclick="loadMenu('${r.id}')">View Menu</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Load Menu
+        async function loadMenu(id) {
+            const query = `query($id: ID!) { restaurant(id: $id) { id name image menus { id name price } } }`;
+            const { data } = await graphql(query, { id });
+            currentRestaurant = data.restaurant;
+            
+            document.getElementById('restaurant-list').classList.add('hidden');
+            document.getElementById('menu-view').classList.remove('hidden');
+            document.getElementById('cart').classList.remove('hidden');
+            
+            document.getElementById('selected-restaurant').innerHTML = `<h2>${currentRestaurant.name}</h2>`;
+            document.getElementById('menu-container').innerHTML = currentRestaurant.menus.map(m => `
+                <div class="menu-item">
+                    <div>
+                        <strong>${m.name}</strong><br>
+                        Rp ${m.price}
+                    </div>
+                    <button class="btn" onclick="addToCart('${m.name}', ${m.price})">Add</button>
+                </div>
+            `).join('');
+            cart = [];
+            updateCart();
+        }
+
+        function addToCart(name, price) {
+            cart.push({ name, price, quantity: 1 });
+            updateCart();
+        }
+
+        function updateCart() {
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            document.getElementById('cart-total').innerText = total;
+        }
+
+        function showRestaurantList() {
+            document.getElementById('restaurant-list').classList.remove('hidden');
+            document.getElementById('menu-view').classList.add('hidden');
+            document.getElementById('cart').classList.add('hidden');
+        }
+
+        // Place Order
+        async function placeOrder() {
+            if (cart.length === 0) return alert('Cart is empty!');
+            
+            const mutation = `
+                mutation($restaurantId: ID!, $userId: String!, $items: [OrderItemInput]!) {
+                    createOrder(restaurantId: $restaurantId, userId: $userId, items: $items) {
+                        id status
+                    }
+                }
+            `;
+            
+            const variables = {
+                restaurantId: currentRestaurant.id,
+                userId: "user_123", // Hardcoded for MVP
+                items: cart
+            };
+
+            try {
+                const { data, errors } = await graphql(mutation, variables);
+                if (errors) throw new Error(errors[0].message);
+                
+                const order = data.createOrder;
+                document.getElementById('menu-view').classList.add('hidden');
+                document.getElementById('cart').classList.add('hidden');
+                document.getElementById('order-success').classList.remove('hidden');
+                document.getElementById('order-id').innerText = order.id;
+
+                // Poll for driver
+                checkDriver(order.id);
+            } catch (e) {
+                alert('Order failed: ' + e.message);
+            }
+        }
+
+        async function checkDriver(orderId) {
+            const interval = setInterval(async () => {
+                const query = `query($id: ID!) { orders { id delivery { driverName } } }`; 
+                // In real app query specific order, but our schema has orders list. 
+                // Wait, I didn't add order(id) to Query in Schema! I only added orders list.
+                // Let's just query all orders and find ours for MVP hackiness
+                
+                const { data } = await graphql(`query { orders { id delivery { driverName } } }`);
+                const myOrder = data.orders.find(o => o.id == orderId);
+                
+                if (myOrder && myOrder.delivery) {
+                    document.getElementById('driver-name').innerText = myOrder.delivery.driverName;
+                    document.getElementById('order-status').innerText = "ON THE WAY";
+                    clearInterval(interval);
+                }
+            }, 2000);
+        }
+
+        loadRestaurants();
+    </script>
+</body>
+</html>
+
+
