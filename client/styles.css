@@ -1,12 +1,231 @@
-body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f5f5f5; }
-h1 { color: #333; text-align: center; }
-.card { background: white; padding: 15px; margin-bottom: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-.restaurant-header { display: flex; align-items: center; gap: 15px; }
-.restaurant-img { width: 80px; height: 80px; object-fit: cover; border-radius: 50%; }
-.btn { background: #ff4757; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
-.btn:hover { background: #ff6b81; }
-.menu-item { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 10px 0; }
-.cart-summary { background: #2f3542; color: white; padding: 15px; position: sticky; bottom: 20px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
-.hidden { display: none; }
+:root {
+    --primary-color: #E74C3C; /* Alizarin Red */
+    --primary-dark: #C0392B;
+    --white: #FFFFFF;
+    --bg-color: #F9FAFB;
+    --text-dark: #2C3E50;
+    --text-light: #7F8C8D;
+    --border-color: #ECF0F1;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    --radius: 12px;
+}
 
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--bg-color);
+    margin: 0;
+    padding: 0;
+    color: var(--text-dark);
+    line-height: 1.6;
+}
 
+h1, h2, h3 {
+    margin: 0 0 10px;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.container {
+    max-width: 480px; /* Mobile-first simplistic view */
+    margin: 0 auto;
+    background: var(--white);
+    min-height: 100vh;
+    box-shadow: 0 0 20px rgba(0,0,0,0.05);
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Header */
+.header {
+    background: var(--white);
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    color: var(--primary-color);
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -1px;
+}
+
+.user-badge {
+    font-size: 0.8rem;
+    background: var(--text-dark);
+    color: var(--white);
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+/* Content Area */
+.content {
+    padding: 20px;
+    padding-bottom: 100px; /* Space for cart */
+}
+
+/* Cards */
+.card {
+    background: var(--white);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 15px;
+    margin-bottom: 15px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    border-color: var(--primary-color);
+}
+
+.restaurant-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    background-color: #eee;
+}
+
+.card-info {
+    flex: 1;
+}
+
+.card-price {
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+/* Buttons */
+.btn {
+    background-color: var(--primary-color);
+    color: var(--white);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+    width: 100%;
+    text-align: center;
+}
+
+.btn:hover {
+    background-color: var(--primary-dark);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-outline:hover {
+    background: rgba(231, 76, 60, 0.05);
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    width: auto;
+}
+
+.btn-back {
+    background: transparent;
+    color: var(--text-light);
+    padding: 0;
+    width: auto;
+    margin-bottom: 15px;
+    display: inline-block;
+}
+
+/* Role Selection */
+.role-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    justify-content: center;
+    height: 80vh;
+    text-align: center;
+    padding: 20px;
+}
+
+.role-card {
+    padding: 30px;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius);
+    cursor: pointer;
+}
+
+.role-card.active {
+    border-color: var(--primary-color);
+    background-color: rgba(231, 76, 60, 0.03);
+}
+
+/* Cart Sticky Footer */
+.cart-summary {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 440px;
+    background: var(--text-dark);
+    color: var(--white);
+    padding: 15px 20px;
+    border-radius: 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    z-index: 1000;
+}
+
+.cart-summary span {
+    font-weight: 700;
+}
+
+.cart-btn {
+    background: var(--white);
+    color: var(--text-dark);
+    border: none;
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* Utilities */
+.hidden { display: none !important; }
+.text-muted { color: var(--text-light); font-size: 0.9rem; }
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.badge-pending { background: #F1C40F; color: #fff; }
+.badge-accepted { background: #3498DB; color: #fff; }
+.badge-on_way { background: #9B59B6; color: #fff; }
+.badge-completed { background: #2ECC71; color: #fff; }
+
+/* Dashboard specific */
+.order-actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+}

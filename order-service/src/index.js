@@ -54,6 +54,18 @@ app.get('/orders/:id', async (req, res) => {
     }
 });
 
+// Update Order Status
+app.put('/orders/:id/status', async (req, res) => {
+    try {
+        const { status } = req.body;
+        const order = await db.updateOrderStatus(req.params.id, status);
+        if (!order) return res.status(404).json({ error: 'Order not found' });
+        res.json(order);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`🚀 Order Service running on port ${PORT}`);
 });

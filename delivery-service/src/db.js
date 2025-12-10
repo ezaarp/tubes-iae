@@ -15,20 +15,37 @@ class Database {
     }
 
     async assignDriver(orderId) {
-        const drivers = ['Budi', 'Slamet', 'Joko', 'Asep'];
+        // 3 Specific Drivers available for assignment
+        const drivers = [
+            'Andi (Motor 1)', 
+            'Budi (Motor 2)', 
+            'Citra (Motor 3)'
+        ];
         const randomDriver = drivers[Math.floor(Math.random() * drivers.length)];
         
         const delivery = {
             order_id: orderId,
-            driver_name: randomDriver,
-            status: 'ON_WAY',
-            estimated_time: '15 mins'
+            driverName: randomDriver, // Changed from driver_name to driverName to match GraphQL Schema
+            status: 'ON_THE_WAY',     // Standardized status
+            estimatedTime: '15 mins'  // Standardized to camelCase
         };
 
         if (this.useSupabase) {
-            const { data, error } = await this.supabase.from('deliveries').insert(delivery).select().single();
+            // For Supabase we might need snake_case for DB columns, but let's assume we map it back or use simple objects for now
+            const { data, error } = await this.supabase.from('deliveries').insert({
+                order_id: orderId,
+                driver_name: randomDriver,
+                status: 'ON_THE_WAY',
+                estimated_time: '15 mins'
+            }).select().single();
+            
             if (error) throw error;
-            return data;
+            // Map back to camelCase for API response
+            return {
+                ...data,
+                driverName: data.driver_name,
+                estimatedTime: data.estimated_time
+            };
         }
 
         delivery.id = this.deliveries.length + 1;
@@ -39,9 +56,14 @@ class Database {
     async getDeliveryByOrderId(orderId) {
         if (this.useSupabase) {
             const { data, error } = await this.supabase.from('deliveries').select('*').eq('order_id', orderId).single();
-            // Return null if not found instead of throwing for 404 handling
             if (error && error.code !== 'PGRST116') throw error; 
-            return data;
+            if (!data) return null;
+            
+            return {
+                ...data,
+                driverName: data.driver_name,
+                estimatedTime: data.estimated_time
+            };
         }
         return this.deliveries.find(d => d.order_id == orderId);
     }
