@@ -1,1 +1,13 @@
 .env
+.gitignore
+
+# Ignore all Markdown files (untracked only)
+*.md
+
+# If you want to keep README.md tracked, uncomment the next line:
+!README.md
+
+# Explicit entries preserved for reference
+/API_DOCUMENTATION.md
+/GRAPHQL_QUERIES.md
+/GRAPHQL_REFERENCE.md
