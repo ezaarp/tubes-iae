@@ -3,171 +3,521 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Food Delivery MVP</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>FoodDelivery App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden { display: none !important; }
+    </style>
 </head>
-<body>
-    <h1>🍔 Mini Food Delivery</h1>
-    
-    <div id="app">
-        <!-- Restaurant List -->
-        <div id="restaurant-list">
-            <h2>Select a Restaurant</h2>
-            <div id="restaurants-container">Loading...</div>
+<body class="bg-gray-50 text-gray-800 min-h-screen">
+
+    <div id="app" class="max-w-md mx-auto bg-white min-h-screen shadow-xl relative overflow-hidden">
+        
+        <!-- VIEW: PORTAL SCREEN -->
+        <div id="view-portal" class="flex flex-col min-h-screen bg-white">
+            <div class="p-6">
+                <h1 class="text-2xl font-bold text-red-500 tracking-tighter">FOODDELIVERY.</h1>
+            </div>
+            <div class="flex-1 flex flex-col items-center justify-center px-4 -mt-10">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Welcome <span class="animate-bounce inline-block">👋</span></h2>
+                    <p class="text-gray-500">Choose your portal to continue</p>
+                </div>
+                <div class="w-full space-y-4">
+                    <button onclick="setRole('customer')" class="w-full bg-white border-2 border-gray-100 hover:border-red-100 p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all transform hover:-translate-y-1 group text-left">
+                        <div class="flex items-center gap-4">
+                            <span class="text-4xl bg-orange-100 p-3 rounded-full">😋</span>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800 group-hover:text-red-500 transition-colors">I'm Hungry</h3>
+                                <p class="text-sm text-gray-400">Order food from local restaurants</p>
+                            </div>
+                        </div>
+                    </button>
+                    <button onclick="setRole('restaurant')" class="w-full bg-white border-2 border-gray-100 hover:border-blue-100 p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all transform hover:-translate-y-1 group text-left">
+                        <div class="flex items-center gap-4">
+                            <span class="text-4xl bg-blue-100 p-3 rounded-full">👨‍🍳</span>
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800 group-hover:text-blue-600 transition-colors">Restaurant Owner</h3>
+                                <p class="text-sm text-gray-400">Manage orders and deliveries</p>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6 text-center text-xs text-gray-300">© 2025 FoodDelivery App Concept</div>
         </div>
 
-        <!-- Menu List -->
-        <div id="menu-view" class="hidden">
-            <button class="btn" onclick="showRestaurantList()">← Back</button>
-            <div id="selected-restaurant"></div>
-            <h3>Menu</h3>
-            <div id="menu-container"></div>
-        </div>
+        <!-- VIEW: CUSTOMER APP -->
+        <div id="view-customer" class="hidden pb-24">
+            <!-- Header -->
+            <div class="sticky top-0 z-10 bg-white shadow-sm p-4 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <button id="btn-back-resto" onclick="showView('view-customer')" class="p-2 hover:bg-gray-100 rounded-full hidden">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    </button>
+                    <div class="flex flex-col">
+                        <span class="text-xs text-gray-400">Delivering to</span>
+                        <span class="text-sm font-bold flex items-center gap-1 text-red-500">
+                            <i data-lucide="map-pin" class="w-3 h-3"></i> Bojongsoang, Bandung
+                        </span>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="showHistory()" class="p-2 hover:bg-gray-100 rounded-full relative">
+                        <i data-lucide="clock" class="w-5 h-5 text-gray-600"></i>
+                    </button>
+                    <div class="relative">
+                        <div class="bg-red-50 p-2 rounded-full">
+                            <i data-lucide="shopping-bag" class="w-5 h-5 text-red-500"></i>
+                        </div>
+                        <span id="cart-badge" class="hidden absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white">0</span>
+                    </div>
+                </div>
+            </div>
 
-        <!-- Order Success -->
-        <div id="order-success" class="hidden">
-            <div class="card" style="text-align: center; color: green;">
-                <h2>✅ Order Placed!</h2>
-                <p>Order ID: <span id="order-id"></span></p>
-                <p>Status: <span id="order-status">PENDING</span></p>
-                <p>Driver: <span id="driver-name">Finding driver...</span></p>
-                <button class="btn" onclick="window.location.reload()">Order Again</button>
+            <!-- Restaurant List Section -->
+            <div id="section-restaurants" class="p-4">
+                <div class="mb-6">
+                    <h1 class="text-2xl font-bold mb-1">Mau makan apa?</h1>
+                    <p class="text-gray-400 text-sm">Temukan makanan favoritmu di sekitar sini.</p>
+                </div>
+                
+                <div class="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
+                    <button class="whitespace-nowrap px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-red-500 hover:text-white transition-colors">🔥 Promo</button>
+                    <button class="whitespace-nowrap px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-red-500 hover:text-white transition-colors">🍚 Nasi</button>
+                    <button class="whitespace-nowrap px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-red-500 hover:text-white transition-colors">🍗 Ayam</button>
+                </div>
+
+                <div id="restaurants-list" class="space-y-4 mt-4">
+                    <p class="text-center text-gray-400 mt-10">Loading restaurants...</p>
+                </div>
+            </div>
+
+            <!-- History Section (New) -->
+            <div id="section-history" class="hidden p-4 animate-fade-in">
+                <h2 class="text-xl font-bold mb-4">Riwayat Pesanan</h2>
+                <div id="history-list" class="space-y-3">
+                    <!-- History Items -->
+                </div>
+            </div>
+
+            <!-- Menu Section -->
+            <div id="section-menu" class="hidden p-4 animate-fade-in">
+                <div class="text-center mb-6">
+                    <img id="menu-resto-img" src="" class="w-20 h-20 rounded-full mx-auto mb-2 object-cover bg-gray-100">
+                    <h2 id="menu-resto-name" class="text-2xl font-bold">Resto Name</h2>
+                    <p class="text-gray-500 text-sm">Western • Indonesia • 15-20 min</p>
+                </div>
+                <div class="space-y-4">
+                    <h3 class="font-bold text-gray-800">Menu Pilihan</h3>
+                    <div id="menu-list" class="space-y-4"></div>
+                </div>
+            </div>
+
+            <!-- Order Tracking Section -->
+            <div id="section-tracking" class="hidden p-4 text-center pt-10 animate-fade-in">
+                <div class="text-6xl mb-4">🛵</div>
+                <h2 class="text-2xl font-bold mb-2">Order Placed!</h2>
+                <p class="text-gray-400 text-sm mb-6">Order ID: <span id="track-order-id" class="font-mono">#---</span></p>
+                
+                <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 mb-6">
+                    <p class="text-xs text-gray-400 uppercase tracking-wider mb-1">Status</p>
+                    <h3 id="track-status" class="text-2xl font-bold text-yellow-500">PENDING</h3>
+                    <div class="h-1 w-full bg-gray-200 rounded-full mt-4 overflow-hidden">
+                        <div id="track-bar" class="h-full bg-yellow-500 w-1/3 transition-all duration-500"></div>
+                    </div>
+                    <p id="track-driver" class="text-sm text-gray-500 mt-4">Waiting for restaurant...</p>
+                </div>
+                
+                <button onclick="showView('view-customer')" class="w-full py-3 border-2 border-gray-200 rounded-xl font-bold text-gray-600 hover:bg-gray-50">Order Again</button>
+            </div>
+
+            <!-- Cart Float -->
+            <div id="cart-float" class="hidden fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] p-4 border-t border-gray-100 z-50">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-sm text-gray-500"><span id="cart-count">0</span> items</span>
+                    <span class="font-bold text-lg">Rp <span id="cart-total">0</span></span>
+                </div>
+                <button onclick="placeOrder()" class="w-full bg-red-600 text-white font-bold py-3 rounded-xl hover:bg-red-700 active:scale-95 transition-all">
+                    Pesan Sekarang
+                </button>
             </div>
         </div>
+
+        <!-- VIEW: OWNER DASHBOARD -->
+        <div id="view-owner" class="hidden min-h-screen bg-gray-50">
+            <!-- Topbar -->
+            <div class="bg-slate-800 text-white p-4 flex justify-between items-center sticky top-0 z-20">
+                <div class="flex items-center gap-3">
+                    <button onclick="showView('view-portal')" class="hover:bg-slate-700 p-2 rounded-lg">
+                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
+                    </button>
+                    <div>
+                        <h1 class="font-bold text-lg">Partner Dashboard</h1>
+                        <p class="text-xs text-slate-400">Nasi Goreng Mas Budi</p>
+                    </div>
+                </div>
+                <div class="h-8 w-8 bg-slate-600 rounded-full flex items-center justify-center">
+                    <i data-lucide="chef-hat" class="w-4 h-4"></i>
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="grid grid-cols-1 gap-4 p-4">
+                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
+                    <div class="flex items-center gap-2 text-orange-500 mb-1">
+                        <i data-lucide="shopping-bag" class="w-4 h-4"></i> <span class="text-xs font-bold uppercase">Orders</span>
+                    </div>
+                    <p class="text-2xl font-bold text-slate-800" id="order-count-badge">0</p>
+                    <p class="text-xs text-slate-400">Total order</p>
+                </div>
+            </div>
+
+            <!-- Restaurant Tabs -->
+            <div id="owner-resto-tabs" class="px-4 mb-2 flex gap-2 overflow-x-auto no-scrollbar"></div>
+
+            <!-- Orders List -->
+            <div class="px-4 pb-10 space-y-3">
+                <div class="flex justify-between items-center mb-2">
+                     <h3 class="font-bold text-slate-700">Incoming Orders</h3>
+                     <button onclick="fetchOrders()" class="text-xs bg-slate-200 px-2 py-1 rounded hover:bg-slate-300">Refresh ↻</button>
+                </div>
+                <div id="owner-orders-list" class="space-y-3">
+                    <p class="text-center text-slate-400 py-10">No active orders</p>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <!-- Cart -->
-    <div id="cart" class="cart-summary hidden">
-        <span>Total: Rp <span id="cart-total">0</span></span>
-        <button class="btn" onclick="placeOrder()">Order Now</button>
-    </div>
-
+    <!-- LOGIC SCRIPT -->
     <script>
+        lucide.createIcons();
         const GATEWAY_URL = 'http://localhost:4000';
-        let currentRestaurant = null;
-        let cart = [];
+        const CURRENT_USER_ID = "user_demo"; // Hardcoded for MVP
+        const RESTAURANT_TABS = [
+            { id: "1", name: "Nasi Goreng Mafia" },
+            { id: "2", name: "Burger Kingkwong" },
+            { id: "3", name: "Sushi Tei-kwondo" },
+        ];
+        let STATE = { 
+            cart: [], 
+            currentRestaurant: null, 
+            activeOrderId: null,
+            ownerRestaurantFilter: RESTAURANT_TABS[0].id
+        };
+        let pollingInterval = null;
 
-        async function graphql(query, variables = {}) {
-            const res = await fetch(GATEWAY_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ query, variables })
-            });
-            return res.json();
-        }
-
-        // Load Restaurants
-        async function loadRestaurants() {
-            const query = `query { restaurants { id name image } }`;
-            const { data } = await graphql(query);
-            const container = document.getElementById('restaurants-container');
-            container.innerHTML = data.restaurants.map(r => `
-                <div class="card restaurant-header">
-                    <img src="${r.image}" class="restaurant-img">
-                    <div>
-                        <h3>${r.name}</h3>
-                        <button class="btn" onclick="loadMenu('${r.id}')">View Menu</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Load Menu
-        async function loadMenu(id) {
-            const query = `query($id: ID!) { restaurant(id: $id) { id name image menus { id name price } } }`;
-            const { data } = await graphql(query, { id });
-            currentRestaurant = data.restaurant;
-            
-            document.getElementById('restaurant-list').classList.add('hidden');
-            document.getElementById('menu-view').classList.remove('hidden');
-            document.getElementById('cart').classList.remove('hidden');
-            
-            document.getElementById('selected-restaurant').innerHTML = `<h2>${currentRestaurant.name}</h2>`;
-            document.getElementById('menu-container').innerHTML = currentRestaurant.menus.map(m => `
-                <div class="menu-item">
-                    <div>
-                        <strong>${m.name}</strong><br>
-                        Rp ${m.price}
-                    </div>
-                    <button class="btn" onclick="addToCart('${m.name}', ${m.price})">Add</button>
-                </div>
-            `).join('');
-            cart = [];
-            updateCart();
-        }
-
-        function addToCart(name, price) {
-            cart.push({ name, price, quantity: 1 });
-            updateCart();
-        }
-
-        function updateCart() {
-            const total = cart.reduce((sum, item) => sum + item.price, 0);
-            document.getElementById('cart-total').innerText = total;
-        }
-
-        function showRestaurantList() {
-            document.getElementById('restaurant-list').classList.remove('hidden');
-            document.getElementById('menu-view').classList.add('hidden');
-            document.getElementById('cart').classList.add('hidden');
-        }
-
-        // Place Order
-        async function placeOrder() {
-            if (cart.length === 0) return alert('Cart is empty!');
-            
-            const mutation = `
-                mutation($restaurantId: ID!, $userId: String!, $items: [OrderItemInput]!) {
-                    createOrder(restaurantId: $restaurantId, userId: $userId, items: $items) {
-                        id status
-                    }
-                }
-            `;
-            
-            const variables = {
-                restaurantId: currentRestaurant.id,
-                userId: "user_123", // Hardcoded for MVP
-                items: cart
-            };
-
-            try {
-                const { data, errors } = await graphql(mutation, variables);
-                if (errors) throw new Error(errors[0].message);
-                
-                const order = data.createOrder;
-                document.getElementById('menu-view').classList.add('hidden');
-                document.getElementById('cart').classList.add('hidden');
-                document.getElementById('order-success').classList.remove('hidden');
-                document.getElementById('order-id').innerText = order.id;
-
-                // Poll for driver
-                checkDriver(order.id);
-            } catch (e) {
-                alert('Order failed: ' + e.message);
+        // --- NAVIGATION ---
+        function setRole(role) {
+            document.getElementById('view-portal').classList.add('hidden');
+            if (role === 'customer') {
+                document.getElementById('view-customer').classList.remove('hidden');
+                showView('view-customer'); // Reset to home
+            } else {
+                document.getElementById('view-owner').classList.remove('hidden');
+                renderOwnerTabs();
+                fetchOrders();
+                // Auto-refresh for Owner
+                if (pollingInterval) clearInterval(pollingInterval);
+                pollingInterval = setInterval(fetchOrders, 5000);
             }
         }
 
-        async function checkDriver(orderId) {
-            const interval = setInterval(async () => {
-                const query = `query($id: ID!) { orders { id delivery { driverName } } }`; 
-                // In real app query specific order, but our schema has orders list. 
-                // Wait, I didn't add order(id) to Query in Schema! I only added orders list.
-                // Let's just query all orders and find ours for MVP hackiness
-                
-                const { data } = await graphql(`query { orders { id delivery { driverName } } }`);
-                const myOrder = data.orders.find(o => o.id == orderId);
-                
-                if (myOrder && myOrder.delivery) {
-                    document.getElementById('driver-name').innerText = myOrder.delivery.driverName;
-                    document.getElementById('order-status').innerText = "ON THE WAY";
-                    clearInterval(interval);
-                }
-            }, 2000);
+        function showView(viewId) {
+            // Hide sub-sections
+            document.getElementById('section-restaurants').classList.add('hidden');
+            document.getElementById('section-menu').classList.add('hidden');
+            document.getElementById('section-tracking').classList.add('hidden');
+            document.getElementById('section-history').classList.add('hidden');
+            document.getElementById('btn-back-resto').classList.add('hidden');
+            
+            // Portal & Owner logic
+            if(viewId === 'view-portal') {
+                document.getElementById('view-customer').classList.add('hidden');
+                document.getElementById('view-owner').classList.add('hidden');
+                document.getElementById('view-portal').classList.remove('hidden');
+                return;
+            }
+
+            // Customer Views
+            if(viewId === 'view-customer') {
+                document.getElementById('section-restaurants').classList.remove('hidden');
+                loadRestaurants();
+            }
         }
 
-        loadRestaurants();
+        // --- GRAPHQL HELPER ---
+        async function graphql(query, variables = {}) {
+            try {
+                const res = await fetch(GATEWAY_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query, variables })
+                });
+                const result = await res.json();
+                if (result.errors) {
+                    console.error('GraphQL Error:', result.errors);
+                    throw new Error(result.errors[0]?.message || 'GraphQL request failed');
+                }
+                return result.data;
+            } catch (e) {
+                console.error('Network Error:', e);
+                alert('Gagal terhubung ke server. Pastikan gateway berjalan.');
+                return null;
+            }
+        }
+
+        // --- CUSTOMER LOGIC ---
+        async function loadRestaurants() {
+            const data = await graphql(`query { restaurants { id name image } }`);
+            if (!data) return;
+            document.getElementById('restaurants-list').innerHTML = data.restaurants.map(r => `
+                <div onclick="openMenu('${r.id}')" class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm cursor-pointer hover:shadow-md transition-shadow flex gap-4">
+                    <img src="${r.image}" class="w-24 h-24 rounded-lg object-cover bg-gray-100">
+                    <div class="flex-1 py-1">
+                        <h3 class="font-bold text-lg text-gray-800">${r.name}</h3>
+                        <p class="text-xs text-gray-500 mb-2">Western • Indonesia</p>
+                        <div class="flex items-center gap-3 text-xs text-gray-500">
+                            <span class="flex items-center gap-1 bg-yellow-50 text-yellow-700 px-1.5 py-0.5 rounded">★ 4.8</span>
+                            <span class="flex items-center gap-1">⏰ 15-20 min</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function openMenu(id) {
+            const data = await graphql(`query($id: ID!) { restaurant(id: $id) { id name image menus { id name price } } }`, { id });
+            if (!data) return;
+            
+            STATE.currentRestaurant = data.restaurant;
+            STATE.cart = [];
+            updateCartUI();
+
+            document.getElementById('section-restaurants').classList.add('hidden');
+            document.getElementById('section-menu').classList.remove('hidden');
+            document.getElementById('btn-back-resto').classList.remove('hidden');
+            
+            document.getElementById('menu-resto-name').innerText = STATE.currentRestaurant.name;
+            document.getElementById('menu-resto-img').src = STATE.currentRestaurant.image;
+            document.getElementById('menu-list').innerHTML = STATE.currentRestaurant.menus.map(m => `
+                <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                    <div><h4 class="font-bold text-gray-800">${m.name}</h4><p class="text-red-500 font-bold">Rp ${m.price.toLocaleString()}</p></div>
+                    <button onclick="addToCart('${m.name}', ${m.price})" class="bg-red-50 text-red-600 p-2 rounded-lg hover:bg-red-500 hover:text-white transition-colors"><i data-lucide="plus" class="w-5 h-5"></i></button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function addToCart(name, price) {
+            const existing = STATE.cart.find(item => item.name === name);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                STATE.cart.push({ name, price, qty: 1 });
+            }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const count = STATE.cart.reduce((sum, item) => sum + item.qty, 0);
+            const total = STATE.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            document.getElementById('cart-count').innerText = count;
+            document.getElementById('cart-badge').innerText = count;
+            document.getElementById('cart-total').innerText = total.toLocaleString();
+            if (count > 0) {
+                document.getElementById('cart-badge').classList.remove('hidden');
+                document.getElementById('cart-float').classList.remove('hidden');
+            } else {
+                document.getElementById('cart-badge').classList.add('hidden');
+                document.getElementById('cart-float').classList.add('hidden');
+            }
+        }
+
+        async function placeOrder() {
+            if (!STATE.currentRestaurant || STATE.cart.length === 0) return;
+
+            const mutation = `
+                mutation CreateOrder($restaurantId: ID!, $userId: String!, $items: [OrderItemInput]!) {
+                    createOrder(restaurantId: $restaurantId, userId: $userId, items: $items) {
+                        id
+                        status
+                    }
+                }
+            `;
+            const variables = {
+                restaurantId: STATE.currentRestaurant.id,
+                userId: CURRENT_USER_ID,
+                items: STATE.cart.map(item => ({
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.qty || 1
+                }))
+            };
+
+            const data = await graphql(mutation, variables);
+            
+            if (data) {
+                STATE.activeOrderId = data.createOrder.id;
+                document.getElementById('section-menu').classList.add('hidden');
+                document.getElementById('cart-float').classList.add('hidden');
+                document.getElementById('section-tracking').classList.remove('hidden');
+                document.getElementById('track-order-id').innerText = "#" + STATE.activeOrderId;
+                
+                if (pollingInterval) clearInterval(pollingInterval);
+                pollingInterval = setInterval(trackOrder, 3000);
+            }
+        }
+
+        async function trackOrder() {
+            if (!STATE.activeOrderId) return;
+            const data = await graphql(`query { orders { id status delivery { driverName } } }`);
+            const order = data.orders.find(o => o.id == STATE.activeOrderId);
+            
+            if (order) {
+                const statusEl = document.getElementById('track-status');
+                const barEl = document.getElementById('track-bar');
+                const driverEl = document.getElementById('track-driver');
+                
+                statusEl.innerText = order.status;
+                if (order.status === 'PENDING') {
+                    statusEl.className = "text-2xl font-bold text-yellow-500";
+                    barEl.className = "h-full bg-yellow-500 w-1/3 transition-all duration-500";
+                    driverEl.innerText = "Waiting for restaurant confirmation...";
+                } else if (order.status === 'ACCEPTED') {
+                    statusEl.className = "text-2xl font-bold text-blue-500";
+                    barEl.className = "h-full bg-blue-500 w-2/3 transition-all duration-500";
+                    driverEl.innerText = "Kitchen is preparing your food...";
+                } else if (order.status === 'ON_THE_WAY') {
+                    statusEl.className = "text-2xl font-bold text-green-500";
+                    barEl.className = "h-full bg-green-500 w-full transition-all duration-500";
+                    driverEl.innerText = `Driver ${order.delivery?.driverName || 'Assigned'} is coming!`;
+                }
+            }
+        }
+
+        // --- HISTORY FEATURE ---
+        async function showHistory() {
+            document.getElementById('section-restaurants').classList.add('hidden');
+            document.getElementById('section-menu').classList.add('hidden');
+            document.getElementById('section-tracking').classList.add('hidden');
+            document.getElementById('section-history').classList.remove('hidden');
+            document.getElementById('btn-back-resto').classList.remove('hidden');
+
+            const data = await graphql(`query { orders { id user_id total_price status items { name quantity } } }`);
+            if (!data) return;
+
+            // Filter by Current User ID
+            const myOrders = data.orders.filter(o => o.user_id === CURRENT_USER_ID).sort((a,b) => b.id - a.id);
+            
+            const container = document.getElementById('history-list');
+            if (myOrders.length === 0) {
+                container.innerHTML = '<p class="text-center text-gray-400 mt-10">Belum ada pesanan.</p>';
+                return;
+            }
+
+            container.innerHTML = myOrders.map(o => `
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                    <div class="flex justify-between mb-2">
+                        <span class="font-bold text-gray-700">Order #${o.id}</span>
+                        <span class="text-xs px-2 py-1 rounded font-bold ${o.status === 'ON_THE_WAY' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'}">${o.status}</span>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-2">${formatItems(o.items)}</p>
+                    <p class="text-right font-bold text-red-500">Rp ${o.total_price.toLocaleString()}</p>
+                </div>
+            `).join('');
+        }
+
+        // --- OWNER LOGIC ---
+        async function fetchOrders() {
+            const data = await graphql(`query { orders { id status total_price restaurant_id user_id items { name quantity } delivery { driverName } } }`);
+            if (!data) return;
+            
+            const orders = data.orders.sort((a,b) => b.id - a.id);
+            const filtered = STATE.ownerRestaurantFilter ? orders.filter(o => o.restaurant_id == STATE.ownerRestaurantFilter) : orders;
+            document.getElementById('order-count-badge').innerText = filtered.length;
+            
+            const container = document.getElementById('owner-orders-list');
+            if (filtered.length === 0) { container.innerHTML = '<p class="text-center text-slate-400 py-10">No active orders</p>'; return; }
+
+            container.innerHTML = filtered.map(o => {
+                const resto = RESTAURANT_TABS.find(r => r.id === String(o.restaurant_id));
+                const customerLabel = o.user_id || 'Customer';
+                return `
+                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm animate-fade-in">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="text-xs font-bold text-slate-400 block mb-1">#${o.id}</span>
+                            <h3 class="font-bold text-lg text-slate-800">${customerLabel}</h3>
+                            ${resto ? `<p class="text-xs text-slate-400 mb-1">${resto.name}</p>` : ''}
+                            <p class="text-sm text-slate-600">${formatItems(o.items)}</p>
+                        </div>
+                        <span class="px-2 py-1 text-xs rounded font-bold ${
+                            o.status === 'PENDING' ? 'bg-yellow-100 text-yellow-600' : 
+                            o.status === 'ACCEPTED' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'
+                        }">${o.status}</span>
+                    </div>
+                    <div class="border-t border-gray-100 my-3 pt-3 flex justify-between items-center">
+                        <span class="font-bold text-slate-700">Rp ${o.total_price.toLocaleString()}</span>
+                        <div class="flex gap-2">
+                            ${o.status === 'PENDING' ? `<button onclick="updateStatus('${o.id}', 'ACCEPTED')" class="px-3 py-1 bg-blue-500 text-white rounded-lg text-sm font-bold hover:bg-blue-600">Accept</button>` : ''}
+                            ${o.status === 'ACCEPTED' ? `<button onclick="assignDriver('${o.id}')" class="px-3 py-1 bg-green-500 text-white rounded-lg text-sm font-bold hover:bg-green-600">Call Driver</button>` : ''}
+                            ${o.status === 'ON_THE_WAY' ? `<span class="text-xs text-slate-400">Driver: ${o.delivery?.driverName}</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        async function updateStatus(id, status) {
+            await graphql(`mutation($id: ID!, $status: String!) { updateOrderStatus(orderId: $id, status: $status) { id } }`, { id, status });
+            fetchOrders();
+        }
+
+        async function assignDriver(id) {
+            await graphql(`mutation($id: ID!) { assignDriver(orderId: $id) { driverName } }`, { id });
+            fetchOrders();
+        }
+
+        function formatItems(items = []) {
+            const map = {};
+            items.forEach(item => {
+                const qty = item.quantity || item.qty || 1;
+                map[item.name] = (map[item.name] || 0) + qty;
+            });
+            return Object.entries(map).map(([name, qty]) => `${qty}x ${name}`).join(', ');
+        }
+
+        function renderOwnerTabs() {
+            const container = document.getElementById('owner-resto-tabs');
+            if (!container) return;
+            container.innerHTML = RESTAURANT_TABS.map(tab => `
+                <button 
+                    onclick="setOwnerRestaurant('${tab.id}')"
+                    class="px-4 py-2 rounded-full text-sm font-semibold border ${STATE.ownerRestaurantFilter === tab.id ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 border-slate-200'}">
+                    ${tab.name}
+                </button>
+            `).join('');
+        }
+
+        function setOwnerRestaurant(id) {
+            STATE.ownerRestaurantFilter = id;
+            renderOwnerTabs();
+            fetchOrders();
+        }
+
+        renderOwnerTabs();
+
     </script>
 </body>
 </html>
-
 

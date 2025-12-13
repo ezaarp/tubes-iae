@@ -49,6 +49,26 @@ class Database {
         }
         return this.orders.find(o => o.id == id);
     }
+
+    async updateOrderStatus(id, status) {
+        if (this.useSupabase) {
+            const { data, error } = await this.supabase
+                .from('orders')
+                .update({ status: status })
+                .eq('id', id)
+                .select()
+                .single();
+            if (error) throw error;
+            return data;
+        }
+        
+        const order = this.orders.find(o => o.id == id);
+        if (order) {
+            order.status = status;
+            return order;
+        }
+        return null;
+    }
 }
 
 module.exports = new Database();
