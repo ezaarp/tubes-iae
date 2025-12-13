@@ -4,10 +4,10 @@
 Aplikasi Food Delivery sederhana yang mengintegrasikan Client (Frontend), Gateway (GraphQL), dan beberapa Microservices (Restaurant, Order, Delivery) menggunakan Docker. Project ini disusun untuk memenuhi Tugas Besar Mata Kuliah Integrasi Aplikasi Enterprise.
 
 ## 👥 Anggota Kelompok
-* [Nama Anggota 1] - [NIM]
-* [Nama Anggota 2] - [NIM]
-* [Nama Anggota 3] - [NIM]
-* [Nama Anggota 4] - [NIM]
+* [Andrarieza Rizqi Pradana] - [102022330319]
+* [Deazard Muhammad Arrayyan] - [102022300118]
+* [Muhamad Habibi Budiman] - [102022300226]
+* [Muhammad Alvin Zufar Saputra] - [102022300193]
 
 ## 🏗️ Arsitektur Sistem
 Sistem ini menggunakan pola **Microservices** dengan **API Gateway**.
