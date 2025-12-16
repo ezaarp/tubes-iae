@@ -3,15 +3,12 @@ require('dotenv').config();
 
 class Database {
     constructor() {
-        this.useSupabase = !!(process.env.SUPABASE_URL && process.env.SUPABASE_KEY);
-        this.orders = [];
-
-        if (this.useSupabase) {
-            console.log('🔌 Connecting to Supabase...');
-            this.supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
-        } else {
-            console.log('⚠️  Supabase credentials missing. Using In-Memory Fallback.');
+        if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
+            throw new Error('❌ FATAL: Supabase credentials missing! Please set SUPABASE_URL and SUPABASE_KEY in .env file');
         }
+
+        console.log('🔌 Connecting to Supabase...');
+        this.supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
     }
 
     async createOrder(orderData) {
@@ -21,53 +18,44 @@ class Database {
             created_at: new Date().toISOString()
         };
 
-        if (this.useSupabase) {
-            const { data, error } = await this.supabase.from('orders').insert(newOrder).select().single();
-            if (error) throw error;
-            return data;
+        const { data, error } = await this.supabase.from('orders').insert(newOrder).select().single();
+        if (error) {
+            console.error('❌ Failed to create order in database:', error.message);
+            throw new Error(`Database insert failed: ${error.message}`);
         }
-        
-        newOrder.id = this.orders.length + 1;
-        this.orders.push(newOrder);
-        return newOrder;
+        return data;
     }
 
     async getOrders() {
-        if (this.useSupabase) {
-            const { data, error } = await this.supabase.from('orders').select('*');
-            if (error) throw error;
-            return data;
+        const { data, error } = await this.supabase.from('orders').select('*');
+        if (error) {
+            console.error('❌ Failed to fetch orders from database:', error.message);
+            throw new Error(`Database fetch failed: ${error.message}`);
         }
-        return this.orders;
+        return data;
     }
 
     async getOrderById(id) {
-        if (this.useSupabase) {
-            const { data, error } = await this.supabase.from('orders').select('*').eq('id', id).single();
-            if (error) throw error;
-            return data;
+        const { data, error } = await this.supabase.from('orders').select('*').eq('id', id).single();
+        if (error) {
+            console.error(`❌ Failed to fetch order ${id} from database:`, error.message);
+            throw new Error(`Database fetch failed: ${error.message}`);
         }
-        return this.orders.find(o => o.id == id);
+        return data;
     }
 
     async updateOrderStatus(id, status) {
-        if (this.useSupabase) {
-            const { data, error } = await this.supabase
-                .from('orders')
-                .update({ status: status })
-                .eq('id', id)
-                .select()
-                .single();
-            if (error) throw error;
-            return data;
+        const { data, error } = await this.supabase
+            .from('orders')
+            .update({ status: status })
+            .eq('id', id)
+            .select()
+            .single();
+        if (error) {
+            console.error(`❌ Failed to update order ${id} status in database:`, error.message);
+            throw new Error(`Database update failed: ${error.message}`);
         }
-        
-        const order = this.orders.find(o => o.id == id);
-        if (order) {
-            order.status = status;
-            return order;
-        }
-        return null;
+        return data;
     }
 }
 

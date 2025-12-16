@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,18 +9,45 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .hidden { display: none !important; }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
+
 <body class="bg-gray-50 text-gray-800 min-h-screen">
 
     <div id="app" class="max-w-md mx-auto bg-white min-h-screen shadow-xl relative overflow-hidden">
-        
+
         <!-- VIEW: PORTAL SCREEN -->
         <div id="view-portal" class="flex flex-col min-h-screen bg-white">
             <div class="p-6">
@@ -27,24 +55,29 @@
             </div>
             <div class="flex-1 flex flex-col items-center justify-center px-4 -mt-10">
                 <div class="text-center mb-10">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Welcome <span class="animate-bounce inline-block">👋</span></h2>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Welcome <span
+                            class="animate-bounce inline-block">👋</span></h2>
                     <p class="text-gray-500">Choose your portal to continue</p>
                 </div>
                 <div class="w-full space-y-4">
-                    <button onclick="setRole('customer')" class="w-full bg-white border-2 border-gray-100 hover:border-red-100 p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all transform hover:-translate-y-1 group text-left">
+                    <button onclick="setRole('customer')"
+                        class="w-full bg-white border-2 border-gray-100 hover:border-red-100 p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all transform hover:-translate-y-1 group text-left">
                         <div class="flex items-center gap-4">
                             <span class="text-4xl bg-orange-100 p-3 rounded-full">😋</span>
                             <div>
-                                <h3 class="text-xl font-bold text-gray-800 group-hover:text-red-500 transition-colors">I'm Hungry</h3>
+                                <h3 class="text-xl font-bold text-gray-800 group-hover:text-red-500 transition-colors">
+                                    I'm Hungry</h3>
                                 <p class="text-sm text-gray-400">Order food from local restaurants</p>
                             </div>
                         </div>
                     </button>
-                    <button onclick="setRole('restaurant')" class="w-full bg-white border-2 border-gray-100 hover:border-blue-100 p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all transform hover:-translate-y-1 group text-left">
+                    <button onclick="setRole('restaurant')"
+                        class="w-full bg-white border-2 border-gray-100 hover:border-blue-100 p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all transform hover:-translate-y-1 group text-left">
                         <div class="flex items-center gap-4">
                             <span class="text-4xl bg-blue-100 p-3 rounded-full">👨‍🍳</span>
                             <div>
-                                <h3 class="text-xl font-bold text-gray-800 group-hover:text-blue-600 transition-colors">Restaurant Owner</h3>
+                                <h3 class="text-xl font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
+                                    Restaurant Owner</h3>
                                 <p class="text-sm text-gray-400">Manage orders and deliveries</p>
                             </div>
                         </div>
@@ -59,7 +92,8 @@
             <!-- Header -->
             <div class="sticky top-0 z-10 bg-white shadow-sm p-4 flex justify-between items-center">
                 <div class="flex items-center gap-3">
-                    <button id="btn-back-resto" onclick="showView('view-customer')" class="p-2 hover:bg-gray-100 rounded-full hidden">
+                    <button id="btn-back-resto" onclick="showView('view-customer')"
+                        class="p-2 hover:bg-gray-100 rounded-full hidden">
                         <i data-lucide="arrow-left" class="w-5 h-5"></i>
                     </button>
                     <div class="flex flex-col">
@@ -77,7 +111,8 @@
                         <div class="bg-red-50 p-2 rounded-full">
                             <i data-lucide="shopping-bag" class="w-5 h-5 text-red-500"></i>
                         </div>
-                        <span id="cart-badge" class="hidden absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white">0</span>
+                        <span id="cart-badge"
+                            class="hidden absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white">0</span>
                     </div>
                 </div>
             </div>
@@ -88,11 +123,17 @@
                     <h1 class="text-2xl font-bold mb-1">Mau makan apa?</h1>
                     <p class="text-gray-400 text-sm">Temukan makanan favoritmu di sekitar sini.</p>
                 </div>
-                
+
                 <div class="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
-                    <button class="whitespace-nowrap px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-red-500 hover:text-white transition-colors">🔥 Promo</button>
-                    <button class="whitespace-nowrap px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-red-500 hover:text-white transition-colors">🍚 Nasi</button>
-                    <button class="whitespace-nowrap px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-red-500 hover:text-white transition-colors">🍗 Ayam</button>
+                    <button
+                        class="whitespace-nowrap px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-red-500 hover:text-white transition-colors">🔥
+                        Promo</button>
+                    <button
+                        class="whitespace-nowrap px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-red-500 hover:text-white transition-colors">🍚
+                        Nasi</button>
+                    <button
+                        class="whitespace-nowrap px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-red-500 hover:text-white transition-colors">🍗
+                        Ayam</button>
                 </div>
 
                 <div id="restaurants-list" class="space-y-4 mt-4">
@@ -111,7 +152,8 @@
             <!-- Menu Section -->
             <div id="section-menu" class="hidden p-4 animate-fade-in">
                 <div class="text-center mb-6">
-                    <img id="menu-resto-img" src="" class="w-20 h-20 rounded-full mx-auto mb-2 object-cover bg-gray-100">
+                    <img id="menu-resto-img" src=""
+                        class="w-20 h-20 rounded-full mx-auto mb-2 object-cover bg-gray-100">
                     <h2 id="menu-resto-name" class="text-2xl font-bold">Resto Name</h2>
                     <p class="text-gray-500 text-sm">Western • Indonesia • 15-20 min</p>
                 </div>
@@ -125,8 +167,9 @@
             <div id="section-tracking" class="hidden p-4 text-center pt-10 animate-fade-in">
                 <div class="text-6xl mb-4">🛵</div>
                 <h2 class="text-2xl font-bold mb-2">Order Placed!</h2>
-                <p class="text-gray-400 text-sm mb-6">Order ID: <span id="track-order-id" class="font-mono">#---</span></p>
-                
+                <p class="text-gray-400 text-sm mb-6">Order ID: <span id="track-order-id" class="font-mono">#---</span>
+                </p>
+
                 <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 mb-6">
                     <p class="text-xs text-gray-400 uppercase tracking-wider mb-1">Status</p>
                     <h3 id="track-status" class="text-2xl font-bold text-yellow-500">PENDING</h3>
@@ -135,19 +178,44 @@
                     </div>
                     <p id="track-driver" class="text-sm text-gray-500 mt-4">Waiting for restaurant...</p>
                 </div>
-                
-                <button onclick="showView('view-customer')" class="w-full py-3 border-2 border-gray-200 rounded-xl font-bold text-gray-600 hover:bg-gray-50">Order Again</button>
+
+                <button onclick="showView('view-customer')"
+                    class="w-full py-3 border-2 border-gray-200 rounded-xl font-bold text-gray-600 hover:bg-gray-50">Order
+                    Again</button>
             </div>
 
             <!-- Cart Float -->
-            <div id="cart-float" class="hidden fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] p-4 border-t border-gray-100 z-50">
+            <div id="cart-float"
+                class="hidden fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] p-4 border-t border-gray-100 z-50">
                 <div class="flex justify-between items-center mb-4">
                     <span class="text-sm text-gray-500"><span id="cart-count">0</span> items</span>
                     <span class="font-bold text-lg">Rp <span id="cart-total">0</span></span>
                 </div>
-                <button onclick="placeOrder()" class="w-full bg-red-600 text-white font-bold py-3 rounded-xl hover:bg-red-700 active:scale-95 transition-all">
+                <button onclick="placeOrder()"
+                    class="w-full bg-red-600 text-white font-bold py-3 rounded-xl hover:bg-red-700 active:scale-95 transition-all">
                     Pesan Sekarang
                 </button>
+            </div>
+        </div>
+
+        <!-- Name Input Modal -->
+        <div id="modal-name"
+            class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl p-6 max-w-sm w-full animate-fade-in">
+                <h3 class="text-xl font-bold mb-2">Siapa nama Anda?</h3>
+                <p class="text-sm text-gray-500 mb-4">Kami butuh nama untuk pesanan Anda</p>
+                <input id="input-customer-name" type="text" placeholder="Masukkan nama Anda"
+                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-red-500 mb-4" />
+                <div class="flex gap-2">
+                    <button onclick="closeNameModal()"
+                        class="flex-1 py-3 border-2 border-gray-200 rounded-xl font-bold text-gray-600 hover:bg-gray-50">
+                        Batal
+                    </button>
+                    <button onclick="confirmOrder()"
+                        class="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700">
+                        Lanjut Pesan
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -173,7 +241,8 @@
             <div class="grid grid-cols-1 gap-4 p-4">
                 <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
                     <div class="flex items-center gap-2 text-orange-500 mb-1">
-                        <i data-lucide="shopping-bag" class="w-4 h-4"></i> <span class="text-xs font-bold uppercase">Orders</span>
+                        <i data-lucide="shopping-bag" class="w-4 h-4"></i> <span
+                            class="text-xs font-bold uppercase">Orders</span>
                     </div>
                     <p class="text-2xl font-bold text-slate-800" id="order-count-badge">0</p>
                     <p class="text-xs text-slate-400">Total order</p>
@@ -186,8 +255,9 @@
             <!-- Orders List -->
             <div class="px-4 pb-10 space-y-3">
                 <div class="flex justify-between items-center mb-2">
-                     <h3 class="font-bold text-slate-700">Incoming Orders</h3>
-                     <button onclick="fetchOrders()" class="text-xs bg-slate-200 px-2 py-1 rounded hover:bg-slate-300">Refresh ↻</button>
+                    <h3 class="font-bold text-slate-700">Incoming Orders</h3>
+                    <button onclick="fetchOrders()"
+                        class="text-xs bg-slate-200 px-2 py-1 rounded hover:bg-slate-300">Refresh ↻</button>
                 </div>
                 <div id="owner-orders-list" class="space-y-3">
                     <p class="text-center text-slate-400 py-10">No active orders</p>
@@ -201,16 +271,16 @@
     <script>
         lucide.createIcons();
         const GATEWAY_URL = 'http://localhost:4000';
-        const CURRENT_USER_ID = "user_demo"; // Hardcoded for MVP
         const RESTAURANT_TABS = [
             { id: "1", name: "Nasi Goreng Mafia" },
             { id: "2", name: "Burger Kingkwong" },
             { id: "3", name: "Sushi Tei-kwondo" },
         ];
-        let STATE = { 
-            cart: [], 
-            currentRestaurant: null, 
+        let STATE = {
+            cart: [],
+            currentRestaurant: null,
             activeOrderId: null,
+            customerName: null,
             ownerRestaurantFilter: RESTAURANT_TABS[0].id
         };
         let pollingInterval = null;
@@ -238,9 +308,9 @@
             document.getElementById('section-tracking').classList.add('hidden');
             document.getElementById('section-history').classList.add('hidden');
             document.getElementById('btn-back-resto').classList.add('hidden');
-            
+
             // Portal & Owner logic
-            if(viewId === 'view-portal') {
+            if (viewId === 'view-portal') {
                 document.getElementById('view-customer').classList.add('hidden');
                 document.getElementById('view-owner').classList.add('hidden');
                 document.getElementById('view-portal').classList.remove('hidden');
@@ -248,7 +318,7 @@
             }
 
             // Customer Views
-            if(viewId === 'view-customer') {
+            if (viewId === 'view-customer') {
                 document.getElementById('section-restaurants').classList.remove('hidden');
                 loadRestaurants();
             }
@@ -297,7 +367,7 @@
         async function openMenu(id) {
             const data = await graphql(`query($id: ID!) { restaurant(id: $id) { id name image menus { id name price } } }`, { id });
             if (!data) return;
-            
+
             STATE.currentRestaurant = data.restaurant;
             STATE.cart = [];
             updateCartUI();
@@ -305,7 +375,7 @@
             document.getElementById('section-restaurants').classList.add('hidden');
             document.getElementById('section-menu').classList.remove('hidden');
             document.getElementById('btn-back-resto').classList.remove('hidden');
-            
+
             document.getElementById('menu-resto-name').innerText = STATE.currentRestaurant.name;
             document.getElementById('menu-resto-img').src = STATE.currentRestaurant.image;
             document.getElementById('menu-list').innerHTML = STATE.currentRestaurant.menus.map(m => `
@@ -342,8 +412,30 @@
             }
         }
 
-        async function placeOrder() {
+        function placeOrder() {
             if (!STATE.currentRestaurant || STATE.cart.length === 0) return;
+            // Show name input modal
+            document.getElementById('modal-name').classList.remove('hidden');
+            document.getElementById('input-customer-name').value = '';
+            document.getElementById('input-customer-name').focus();
+        }
+
+        function closeNameModal() {
+            document.getElementById('modal-name').classList.add('hidden');
+        }
+
+        async function confirmOrder() {
+            const nameInput = document.getElementById('input-customer-name');
+            const customerName = nameInput.value.trim();
+
+            if (!customerName) {
+                alert('Mohon masukkan nama Anda!');
+                nameInput.focus();
+                return;
+            }
+
+            STATE.customerName = customerName;
+            document.getElementById('modal-name').classList.add('hidden');
 
             const mutation = `
                 mutation CreateOrder($restaurantId: ID!, $userId: String!, $items: [OrderItemInput]!) {
@@ -355,7 +447,7 @@
             `;
             const variables = {
                 restaurantId: STATE.currentRestaurant.id,
-                userId: CURRENT_USER_ID,
+                userId: customerName,
                 items: STATE.cart.map(item => ({
                     name: item.name,
                     price: item.price,
@@ -364,14 +456,14 @@
             };
 
             const data = await graphql(mutation, variables);
-            
+
             if (data) {
                 STATE.activeOrderId = data.createOrder.id;
                 document.getElementById('section-menu').classList.add('hidden');
                 document.getElementById('cart-float').classList.add('hidden');
                 document.getElementById('section-tracking').classList.remove('hidden');
                 document.getElementById('track-order-id').innerText = "#" + STATE.activeOrderId;
-                
+
                 if (pollingInterval) clearInterval(pollingInterval);
                 pollingInterval = setInterval(trackOrder, 3000);
             }
@@ -381,12 +473,12 @@
             if (!STATE.activeOrderId) return;
             const data = await graphql(`query { orders { id status delivery { driverName } } }`);
             const order = data.orders.find(o => o.id == STATE.activeOrderId);
-            
+
             if (order) {
                 const statusEl = document.getElementById('track-status');
                 const barEl = document.getElementById('track-bar');
                 const driverEl = document.getElementById('track-driver');
-                
+
                 statusEl.innerText = order.status;
                 if (order.status === 'PENDING') {
                     statusEl.className = "text-2xl font-bold text-yellow-500";
@@ -400,6 +492,15 @@
                     statusEl.className = "text-2xl font-bold text-green-500";
                     barEl.className = "h-full bg-green-500 w-full transition-all duration-500";
                     driverEl.innerText = `Driver ${order.delivery?.driverName || 'Assigned'} is coming!`;
+                } else if (order.status === 'DELIVERED') {
+                    statusEl.className = "text-2xl font-bold text-emerald-600";
+                    barEl.className = "h-full bg-emerald-600 w-full transition-all duration-500";
+                    driverEl.innerHTML = `<span class="text-emerald-600">✅ Order delivered! Enjoy your meal!</span>`;
+                    // Stop polling when delivered
+                    if (pollingInterval) {
+                        clearInterval(pollingInterval);
+                        pollingInterval = null;
+                    }
                 }
             }
         }
@@ -415,9 +516,11 @@
             const data = await graphql(`query { orders { id user_id total_price status items { name quantity } } }`);
             if (!data) return;
 
-            // Filter by Current User ID
-            const myOrders = data.orders.filter(o => o.user_id === CURRENT_USER_ID).sort((a,b) => b.id - a.id);
-            
+            // Show all orders (no filtering by user since we want to see order history)
+            const myOrders = STATE.customerName
+                ? data.orders.filter(o => o.user_id === STATE.customerName).sort((a, b) => b.id - a.id)
+                : data.orders.sort((a, b) => b.id - a.id);
+
             const container = document.getElementById('history-list');
             if (myOrders.length === 0) {
                 container.innerHTML = '<p class="text-center text-gray-400 mt-10">Belum ada pesanan.</p>';
@@ -428,7 +531,10 @@
                 <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                     <div class="flex justify-between mb-2">
                         <span class="font-bold text-gray-700">Order #${o.id}</span>
-                        <span class="text-xs px-2 py-1 rounded font-bold ${o.status === 'ON_THE_WAY' ? 'bg-green-100 text-green-600' : 'bg-gray-100 text-gray-600'}">${o.status}</span>
+                        <span class="text-xs px-2 py-1 rounded font-bold ${o.status === 'DELIVERED' ? 'bg-emerald-100 text-emerald-600' :
+                    o.status === 'ON_THE_WAY' ? 'bg-green-100 text-green-600' :
+                        'bg-gray-100 text-gray-600'
+                }">${o.status}</span>
                     </div>
                     <p class="text-sm text-gray-500 mb-2">${formatItems(o.items)}</p>
                     <p class="text-right font-bold text-red-500">Rp ${o.total_price.toLocaleString()}</p>
@@ -440,11 +546,11 @@
         async function fetchOrders() {
             const data = await graphql(`query { orders { id status total_price restaurant_id user_id items { name quantity } delivery { driverName } } }`);
             if (!data) return;
-            
-            const orders = data.orders.sort((a,b) => b.id - a.id);
+
+            const orders = data.orders.sort((a, b) => b.id - a.id);
             const filtered = STATE.ownerRestaurantFilter ? orders.filter(o => o.restaurant_id == STATE.ownerRestaurantFilter) : orders;
             document.getElementById('order-count-badge').innerText = filtered.length;
-            
+
             const container = document.getElementById('owner-orders-list');
             if (filtered.length === 0) { container.innerHTML = '<p class="text-center text-slate-400 py-10">No active orders</p>'; return; }
 
@@ -460,10 +566,11 @@
                             ${resto ? `<p class="text-xs text-slate-400 mb-1">${resto.name}</p>` : ''}
                             <p class="text-sm text-slate-600">${formatItems(o.items)}</p>
                         </div>
-                        <span class="px-2 py-1 text-xs rounded font-bold ${
-                            o.status === 'PENDING' ? 'bg-yellow-100 text-yellow-600' : 
-                            o.status === 'ACCEPTED' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'
-                        }">${o.status}</span>
+                        <span class="px-2 py-1 text-xs rounded font-bold ${o.status === 'PENDING' ? 'bg-yellow-100 text-yellow-600' :
+                        o.status === 'ACCEPTED' ? 'bg-blue-100 text-blue-600' :
+                            o.status === 'ON_THE_WAY' ? 'bg-green-100 text-green-600' :
+                                'bg-emerald-100 text-emerald-600'
+                    }">${o.status}</span>
                     </div>
                     <div class="border-t border-gray-100 my-3 pt-3 flex justify-between items-center">
                         <span class="font-bold text-slate-700">Rp ${o.total_price.toLocaleString()}</span>
@@ -471,6 +578,7 @@
                             ${o.status === 'PENDING' ? `<button onclick="updateStatus('${o.id}', 'ACCEPTED')" class="px-3 py-1 bg-blue-500 text-white rounded-lg text-sm font-bold hover:bg-blue-600">Accept</button>` : ''}
                             ${o.status === 'ACCEPTED' ? `<button onclick="assignDriver('${o.id}')" class="px-3 py-1 bg-green-500 text-white rounded-lg text-sm font-bold hover:bg-green-600">Call Driver</button>` : ''}
                             ${o.status === 'ON_THE_WAY' ? `<span class="text-xs text-slate-400">Driver: ${o.delivery?.driverName}</span>` : ''}
+                            ${o.status === 'DELIVERED' ? `<span class="text-xs text-emerald-600 font-bold">✅ Completed</span>` : ''}
                         </div>
                     </div>
                 </div>
@@ -519,5 +627,5 @@
 
     </script>
 </body>
-</html>
 
+</html>

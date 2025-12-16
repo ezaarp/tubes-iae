@@ -28,12 +28,12 @@ Client hanya berkomunikasi dengan Gateway melalui Query/Mutation GraphQL. Gatewa
 
 ### Langkah-langkah
 1.  Clone repository ini.
-2.  Buat file `.env` di root folder (opsional, jika ingin menggunakan Supabase):
+2.  Buat file `.env` di root folder dengan Supabase credentials:
     ```env
-    SUPABASE_URL=your_url
-    SUPABASE_KEY=your_key
+    SUPABASE_URL=your_supabase_url
+    SUPABASE_KEY=your_supabase_key
     ```
-    *Jika tidak ada .env, aplikasi akan berjalan menggunakan data In-Memory (tetap berfungsi normal).*
+    **⚠️ PENTING**: File `.env` dengan credentials Supabase yang valid **WAJIB** ada. Aplikasi tidak akan berjalan tanpa koneksi ke Supabase database.
 
 3.  Jalankan aplikasi dengan Docker Compose:
     ```bash

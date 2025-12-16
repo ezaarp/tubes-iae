@@ -3,69 +3,56 @@ require('dotenv').config();
 
 class Database {
     constructor() {
-        this.useSupabase = !!(process.env.SUPABASE_URL && process.env.SUPABASE_KEY);
-        this.deliveries = [];
-
-        if (this.useSupabase) {
-            console.log('🔌 Connecting to Supabase...');
-            this.supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
-        } else {
-            console.log('⚠️  Supabase credentials missing. Using In-Memory Fallback.');
+        if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
+            throw new Error('❌ FATAL: Supabase credentials missing! Please set SUPABASE_URL and SUPABASE_KEY in .env file');
         }
+
+        console.log('🔌 Connecting to Supabase...');
+        this.supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
     }
 
     async assignDriver(orderId) {
         // 3 Specific Drivers available for assignment
         const drivers = [
-            'Andi (Motor 1)', 
-            'Budi (Motor 2)', 
+            'Andi (Motor 1)',
+            'Budi (Motor 2)',
             'Citra (Motor 3)'
         ];
         const randomDriver = drivers[Math.floor(Math.random() * drivers.length)];
-        
-        const delivery = {
-            order_id: orderId,
-            driverName: randomDriver, // Changed from driver_name to driverName to match GraphQL Schema
-            status: 'ON_THE_WAY',     // Standardized status
-            estimatedTime: '15 mins'  // Standardized to camelCase
-        };
 
-        if (this.useSupabase) {
-            // For Supabase we might need snake_case for DB columns, but let's assume we map it back or use simple objects for now
-            const { data, error } = await this.supabase.from('deliveries').insert({
-                order_id: orderId,
-                driver_name: randomDriver,
-                status: 'ON_THE_WAY',
-                estimated_time: '15 mins'
-            }).select().single();
-            
-            if (error) throw error;
-            // Map back to camelCase for API response
-            return {
-                ...data,
-                driverName: data.driver_name,
-                estimatedTime: data.estimated_time
-            };
+        const { data, error } = await this.supabase.from('deliveries').insert({
+            order_id: orderId,
+            driver_name: randomDriver,
+            status: 'ON_THE_WAY',
+            estimated_time: '15 mins'
+        }).select().single();
+
+        if (error) {
+            console.error('❌ Failed to assign driver in database:', error.message);
+            throw new Error(`Database insert failed: ${error.message}`);
         }
 
-        delivery.id = this.deliveries.length + 1;
-        this.deliveries.push(delivery);
-        return delivery;
+        // Map back to camelCase for API response
+        return {
+            ...data,
+            driverName: data.driver_name,
+            estimatedTime: data.estimated_time
+        };
     }
 
     async getDeliveryByOrderId(orderId) {
-        if (this.useSupabase) {
-            const { data, error } = await this.supabase.from('deliveries').select('*').eq('order_id', orderId).single();
-            if (error && error.code !== 'PGRST116') throw error; 
-            if (!data) return null;
-            
-            return {
-                ...data,
-                driverName: data.driver_name,
-                estimatedTime: data.estimated_time
-            };
+        const { data, error } = await this.supabase.from('deliveries').select('*').eq('order_id', orderId).single();
+        if (error && error.code !== 'PGRST116') {
+            console.error(`❌ Failed to fetch delivery for order ${orderId} from database:`, error.message);
+            throw new Error(`Database fetch failed: ${error.message}`);
         }
-        return this.deliveries.find(d => d.order_id == orderId);
+        if (!data) return null;
+
+        return {
+            ...data,
+            driverName: data.driver_name,
+            estimatedTime: data.estimated_time
+        };
     }
 }
 

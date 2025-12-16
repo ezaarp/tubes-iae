@@ -39,8 +39,11 @@ services:
       - "5003:5003"
     environment:
       - PORT=5003
+      - ORDER_SERVICE_URL=http://order-service:5002
       - SUPABASE_URL=${SUPABASE_URL}
       - SUPABASE_KEY=${SUPABASE_KEY}
+    depends_on:
+      - order-service
 
   client:
     build: ./client
