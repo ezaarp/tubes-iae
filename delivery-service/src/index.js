@@ -1,7 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
-const db = require('./db');
+const { assignDriver, getDeliveryByOrderId } = require('./db');
+const { authenticateToken, requireRole } = require('./middleware');
 
 const app = express();
 const PORT = process.env.PORT || 5003;
@@ -16,7 +17,7 @@ app.post('/delivery/assign', async (req, res) => {
         const { orderId } = req.body;
         if (!orderId) return res.status(400).json({ error: 'orderId required' });
 
-        const delivery = await db.assignDriver(orderId);
+        const delivery = await assignDriver(orderId);
 
         // Auto-complete delivery after 5 seconds
         setTimeout(async () => {
@@ -40,7 +41,7 @@ app.post('/delivery/assign', async (req, res) => {
 // Get Delivery Info
 app.get('/delivery/:orderId', async (req, res) => {
     try {
-        const delivery = await db.getDeliveryByOrderId(req.params.orderId);
+        const delivery = await getDeliveryByOrderId(req.params.orderId);
         if (!delivery) return res.status(404).json({ status: 'SEARCHING_DRIVER' });
         res.json(delivery);
     } catch (err) {

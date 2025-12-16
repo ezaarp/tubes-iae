@@ -7,10 +7,10 @@
     <title>FoodDelivery App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Outfit', sans-serif;
         }
 
         .no-scrollbar::-webkit-scrollbar {
@@ -23,13 +23,27 @@
         }
 
         .animate-fade-in {
-            animation: fadeIn 0.3s ease-in-out;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.4s ease-out;
         }
 
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
             }
 
             to {
@@ -38,593 +52,624 @@
             }
         }
 
-        .hidden {
-            display: none !important;
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
         }
     </style>
 </head>
 
-<body class="bg-gray-50 text-gray-800 min-h-screen">
+<body class="bg-gray-50 text-slate-800 min-h-screen">
+    <div id="app" class="max-w-md mx-auto bg-white min-h-screen shadow-2xl relative overflow-hidden">
 
-    <div id="app" class="max-w-md mx-auto bg-white min-h-screen shadow-xl relative overflow-hidden">
+        <!-- VIEW: AUTH SCREEN -->
+        <div id="view-auth" class="flex flex-col min-h-screen p-8 justify-center animate-fade-in hidden">
+            <div class="mb-10 text-center">
+                <span class="text-4xl">🍙</span>
+                <h1 class="text-3xl font-bold text-slate-900 mt-4 tracking-tight">FoodDelivery.</h1>
+                <p class="text-slate-400 mt-2">Satisfy your cravings instantly.</p>
+            </div>
 
-        <!-- VIEW: PORTAL SCREEN -->
-        <div id="view-portal" class="flex flex-col min-h-screen bg-white">
-            <div class="p-6">
-                <h1 class="text-2xl font-bold text-red-500 tracking-tighter">FOODDELIVERY.</h1>
-            </div>
-            <div class="flex-1 flex flex-col items-center justify-center px-4 -mt-10">
-                <div class="text-center mb-10">
-                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Welcome <span
-                            class="animate-bounce inline-block">👋</span></h2>
-                    <p class="text-gray-500">Choose your portal to continue</p>
+            <!-- Login Form -->
+            <div id="form-login" class="space-y-4 animate-slide-up">
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-500 uppercase">Email</label>
+                    <input id="login-email" type="email" placeholder="user@example.com"
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-red-500">
                 </div>
-                <div class="w-full space-y-4">
-                    <button onclick="setRole('customer')"
-                        class="w-full bg-white border-2 border-gray-100 hover:border-red-100 p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all transform hover:-translate-y-1 group text-left">
-                        <div class="flex items-center gap-4">
-                            <span class="text-4xl bg-orange-100 p-3 rounded-full">😋</span>
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-800 group-hover:text-red-500 transition-colors">
-                                    I'm Hungry</h3>
-                                <p class="text-sm text-gray-400">Order food from local restaurants</p>
-                            </div>
-                        </div>
-                    </button>
-                    <button onclick="setRole('restaurant')"
-                        class="w-full bg-white border-2 border-gray-100 hover:border-blue-100 p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all transform hover:-translate-y-1 group text-left">
-                        <div class="flex items-center gap-4">
-                            <span class="text-4xl bg-blue-100 p-3 rounded-full">👨‍🍳</span>
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-800 group-hover:text-blue-600 transition-colors">
-                                    Restaurant Owner</h3>
-                                <p class="text-sm text-gray-400">Manage orders and deliveries</p>
-                            </div>
-                        </div>
-                    </button>
+                <div class="space-y-2">
+                    <label class="text-xs font-bold text-slate-500 uppercase">Password</label>
+                    <input id="login-password" type="password" placeholder="••••••••"
+                        class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-red-500">
                 </div>
+                <button onclick="handleLogin()"
+                    class="w-full bg-red-600 text-white font-bold py-4 rounded-xl hover:bg-red-700 shadow-lg shadow-red-200 hover:shadow-red-300 transition-all active:scale-95">Sign
+                    In</button>
+                <p class="text-center text-sm text-slate-400 mt-4">New here? <button
+                        onclick="toggleAuthMode('register')" class="text-red-600 font-bold hover:underline">Create
+                        Account</button></p>
             </div>
-            <div class="p-6 text-center text-xs text-gray-300">© 2025 FoodDelivery App Concept</div>
+
+            <!-- Register Form -->
+            <div id="form-register" class="space-y-4 animate-slide-up hidden">
+                <input id="reg-name" type="text" placeholder="Full Name"
+                    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-red-500">
+                <input id="reg-email" type="email" placeholder="Email"
+                    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-red-500">
+                <input id="reg-password" type="password" placeholder="Password"
+                    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-red-500">
+                <select id="reg-role"
+                    class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-red-500">
+                    <option value="CUSTOMER">Customer (I want to eat)</option>
+                    <option value="OWNER">Restaurant Owner (I want to sell)</option>
+                </select>
+                <button onclick="handleRegister()"
+                    class="w-full bg-slate-900 text-white font-bold py-4 rounded-xl hover:bg-slate-800 shadow-lg transition-all active:scale-95">Create
+                    Account</button>
+                <p class="text-center text-sm text-slate-400 mt-4">Has account? <button
+                        onclick="toggleAuthMode('login')" class="text-slate-900 font-bold hover:underline">Sign
+                        In</button></p>
+            </div>
         </div>
 
-        <!-- VIEW: CUSTOMER APP -->
-        <div id="view-customer" class="hidden pb-24">
-            <!-- Header -->
-            <div class="sticky top-0 z-10 bg-white shadow-sm p-4 flex justify-between items-center">
+        <!-- VIEW: CUSTOMER DASHBOARD -->
+        <div id="view-customer" class="hidden pb-24 animate-fade-in relative z-10">
+            <div class="sticky top-0 z-20 glass shadow-sm p-4 flex justify-between items-center transition-all">
                 <div class="flex items-center gap-3">
-                    <button id="btn-back-resto" onclick="showView('view-customer')"
-                        class="p-2 hover:bg-gray-100 rounded-full hidden">
-                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                    </button>
-                    <div class="flex flex-col">
-                        <span class="text-xs text-gray-400">Delivering to</span>
-                        <span class="text-sm font-bold flex items-center gap-1 text-red-500">
-                            <i data-lucide="map-pin" class="w-3 h-3"></i> Bojongsoang, Bandung
-                        </span>
+                    <button id="btn-back-resto" onclick="backToRestaurants()"
+                        class="p-2 hover:bg-gray-100 rounded-full hidden"><i data-lucide="arrow-left"
+                            class="w-5 h-5"></i></button>
+                    <div><span class="text-xs text-gray-400">Welcome,</span>
+                        <h3 id="customer-name-display" class="font-bold text-lg text-slate-800 leading-tight">User</h3>
                     </div>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="showHistory()" class="p-2 hover:bg-gray-100 rounded-full relative">
-                        <i data-lucide="clock" class="w-5 h-5 text-gray-600"></i>
-                    </button>
-                    <div class="relative">
-                        <div class="bg-red-50 p-2 rounded-full">
-                            <i data-lucide="shopping-bag" class="w-5 h-5 text-red-500"></i>
-                        </div>
-                        <span id="cart-badge"
-                            class="hidden absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white">0</span>
+                <button onclick="handleLogout()" class="p-2 hover:bg-red-50 text-red-500 rounded-full"><i
+                        data-lucide="log-out" class="w-5 h-5"></i></button>
+            </div>
+
+            <div id="section-restaurants" class="p-4 space-y-6">
+                <div
+                    class="bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl p-6 text-white shadow-lg shadow-orange-200">
+                    <span class="bg-white/20 px-2 py-1 rounded text-xs font-bold mb-2 inline-block">PROMO</span>
+                    <h2 class="text-2xl font-bold mb-1">Free Delivery</h2>
+                    <p class="text-white/80 text-sm">For your first 3 orders today!</p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-slate-800 mb-4">Restaurants Nearby</h3>
+                    <div id="restaurants-list" class="space-y-4">
+                        <p class="text-center text-slate-400 py-10">Loading tasty spots...</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Restaurant List Section -->
-            <div id="section-restaurants" class="p-4">
-                <div class="mb-6">
-                    <h1 class="text-2xl font-bold mb-1">Mau makan apa?</h1>
-                    <p class="text-gray-400 text-sm">Temukan makanan favoritmu di sekitar sini.</p>
-                </div>
-
-                <div class="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
-                    <button
-                        class="whitespace-nowrap px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-red-500 hover:text-white transition-colors">🔥
-                        Promo</button>
-                    <button
-                        class="whitespace-nowrap px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-red-500 hover:text-white transition-colors">🍚
-                        Nasi</button>
-                    <button
-                        class="whitespace-nowrap px-4 py-2 bg-white border border-gray-200 rounded-full text-sm font-medium hover:bg-red-500 hover:text-white transition-colors">🍗
-                        Ayam</button>
-                </div>
-
-                <div id="restaurants-list" class="space-y-4 mt-4">
-                    <p class="text-center text-gray-400 mt-10">Loading restaurants...</p>
-                </div>
-            </div>
-
-            <!-- History Section (New) -->
-            <div id="section-history" class="hidden p-4 animate-fade-in">
-                <h2 class="text-xl font-bold mb-4">Riwayat Pesanan</h2>
-                <div id="history-list" class="space-y-3">
-                    <!-- History Items -->
-                </div>
-            </div>
-
-            <!-- Menu Section -->
-            <div id="section-menu" class="hidden p-4 animate-fade-in">
-                <div class="text-center mb-6">
-                    <img id="menu-resto-img" src=""
-                        class="w-20 h-20 rounded-full mx-auto mb-2 object-cover bg-gray-100">
-                    <h2 id="menu-resto-name" class="text-2xl font-bold">Resto Name</h2>
-                    <p class="text-gray-500 text-sm">Western • Indonesia • 15-20 min</p>
-                </div>
-                <div class="space-y-4">
-                    <h3 class="font-bold text-gray-800">Menu Pilihan</h3>
-                    <div id="menu-list" class="space-y-4"></div>
-                </div>
-            </div>
-
-            <!-- Order Tracking Section -->
-            <div id="section-tracking" class="hidden p-4 text-center pt-10 animate-fade-in">
-                <div class="text-6xl mb-4">🛵</div>
-                <h2 class="text-2xl font-bold mb-2">Order Placed!</h2>
-                <p class="text-gray-400 text-sm mb-6">Order ID: <span id="track-order-id" class="font-mono">#---</span>
-                </p>
-
-                <div class="bg-gray-50 p-6 rounded-2xl border border-gray-100 mb-6">
-                    <p class="text-xs text-gray-400 uppercase tracking-wider mb-1">Status</p>
-                    <h3 id="track-status" class="text-2xl font-bold text-yellow-500">PENDING</h3>
-                    <div class="h-1 w-full bg-gray-200 rounded-full mt-4 overflow-hidden">
-                        <div id="track-bar" class="h-full bg-yellow-500 w-1/3 transition-all duration-500"></div>
+            <div id="section-menu" class="hidden animate-slide-up">
+                <div class="relative h-48">
+                    <img id="menu-resto-img" src="" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div class="absolute bottom-4 left-4 text-white">
+                        <h2 id="menu-resto-name" class="text-2xl font-bold">Resto Name</h2>
                     </div>
-                    <p id="track-driver" class="text-sm text-gray-500 mt-4">Waiting for restaurant...</p>
                 </div>
-
-                <button onclick="showView('view-customer')"
-                    class="w-full py-3 border-2 border-gray-200 rounded-xl font-bold text-gray-600 hover:bg-gray-50">Order
-                    Again</button>
+                <div class="p-4 bg-white rounded-t-3xl -mt-6 relative z-10 min-h-[50vh]">
+                    <div class="w-12 h-1 bg-gray-200 rounded-full mx-auto mb-6"></div>
+                    <h3 class="font-bold text-slate-800 mb-4">Menu</h3>
+                    <div id="menu-list" class="space-y-3"></div>
+                </div>
             </div>
 
-            <!-- Cart Float -->
-            <div id="cart-float"
-                class="hidden fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] p-4 border-t border-gray-100 z-50">
-                <div class="flex justify-between items-center mb-4">
-                    <span class="text-sm text-gray-500"><span id="cart-count">0</span> items</span>
-                    <span class="font-bold text-lg">Rp <span id="cart-total">0</span></span>
+            <div id="section-tracking"
+                class="hidden p-6 pt-10 text-center animate-fade-in min-h-[80vh] flex flex-col justify-center">
+                <div class="mb-6 relative">
+                    <div
+                        class="w-24 h-24 bg-green-50 rounded-full mx-auto flex items-center justify-center animate-pulse">
+                        <span class="text-4xl">🛵</span>
+                    </div>
+                    <span id="track-status-icon"
+                        class="absolute bottom-0 right-1/3 bg-white p-1 rounded-full shadow-md text-xl">⏱️</span>
                 </div>
+                <h2 id="track-status-title" class="text-2xl font-bold text-slate-800 mb-2">Order Confirmed</h2>
+                <p id="track-order-id" class="text-slate-400 font-mono text-sm mb-8">#ORDER-ID</p>
+                <div class="bg-white p-6 rounded-2xl shadow-xl shadow-slate-100 border border-slate-50 mb-8 mx-4">
+                    <div class="h-2 bg-gray-100 rounded-full overflow-hidden mb-4">
+                        <div id="track-progress"
+                            class="h-full bg-green-500 w-1/4 transition-all duration-1000 ease-out"></div>
+                    </div>
+                    <p id="track-message" class="text-sm font-medium text-slate-600">Waiting for restaurant...</p>
+                </div>
+                <button onclick="backToRestaurants()"
+                    class="text-slate-400 hover:text-slate-600 text-sm font-bold mt-auto">Go to Home</button>
+            </div>
+
+            <div id="cart-float" class="hidden fixed bottom-6 left-4 right-4 z-40 animate-slide-up">
                 <button onclick="placeOrder()"
-                    class="w-full bg-red-600 text-white font-bold py-3 rounded-xl hover:bg-red-700 active:scale-95 transition-all">
-                    Pesan Sekarang
+                    class="w-full bg-slate-900 text-white p-4 rounded-xl shadow-xl flex justify-between items-center hover:bg-slate-800 transition-all active:scale-95">
+                    <div class="flex items-center gap-3"><span
+                            class="bg-red-500 text-white text-xs font-bold h-6 w-6 flex items-center justify-center rounded-full"
+                            id="cart-count">0</span><span class="font-bold">Place Order</span></div>
+                    <span class="font-bold">Rp <span id="cart-total">0</span></span>
                 </button>
             </div>
         </div>
 
-        <!-- Name Input Modal -->
-        <div id="modal-name"
-            class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl p-6 max-w-sm w-full animate-fade-in">
-                <h3 class="text-xl font-bold mb-2">Siapa nama Anda?</h3>
-                <p class="text-sm text-gray-500 mb-4">Kami butuh nama untuk pesanan Anda</p>
-                <input id="input-customer-name" type="text" placeholder="Masukkan nama Anda"
-                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-red-500 mb-4" />
-                <div class="flex gap-2">
-                    <button onclick="closeNameModal()"
-                        class="flex-1 py-3 border-2 border-gray-200 rounded-xl font-bold text-gray-600 hover:bg-gray-50">
-                        Batal
-                    </button>
-                    <button onclick="confirmOrder()"
-                        class="flex-1 py-3 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700">
-                        Lanjut Pesan
-                    </button>
+        <!-- VIEW: OWNER DASHBOARD -->
+        <div id="view-owner" class="hidden min-h-screen bg-slate-50 animate-fade-in relative">
+            <div class="bg-slate-900 text-white p-6 pb-12 rounded-b-3xl shadow-lg">
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-slate-800 p-2 rounded-lg"><i data-lucide="chef-hat"
+                                class="w-6 h-6 text-orange-400"></i></div>
+                        <div>
+                            <h1 class="font-bold text-xl">Partner Portal</h1>
+                            <p class="text-slate-400 text-xs" id="owner-name-display">Owner</p>
+                        </div>
+                    </div>
+                    <button onclick="handleLogout()"
+                        class="p-2 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors"><i
+                            data-lucide="log-out" class="w-4 h-4 text-slate-300"></i></button>
+                </div>
+            </div>
+            <div class="px-4 -mt-6 relative z-10 pb-10 space-y-4">
+                <!-- My Restaurants -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <h3 class="font-bold text-slate-800">My Restaurant</h3>
+                        <button onclick="showRequestModal()" id="btn-request-resto"
+                            class="text-xs bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 rounded-full font-bold transition-colors hidden">+
+                            Request Restaurant</button>
+                    </div>
+                    <div id="owner-resto-list" class="space-y-2 text-sm text-slate-500">Loading...</div>
+                </div>
+
+                <!-- Menu Management -->
+                <div id="owner-menu-manage" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 hidden">
+                    <h3 class="font-bold text-slate-800 mb-3">Menu Management</h3>
+
+                    <!-- Existing Menus -->
+                    <div id="owner-menu-list" class="space-y-2 mb-4"></div>
+
+                    <!-- Add New Menu Form -->
+                    <div class="border-t pt-3">
+                        <p class="text-xs font-bold text-slate-500 mb-2">ADD NEW MENU</p>
+                        <div class="flex gap-2 mb-2">
+                            <input id="new-menu-name" type="text" placeholder="Menu Name"
+                                class="flex-1 px-3 py-2 border rounded-lg text-sm">
+                            <input id="new-menu-price" type="number" placeholder="Price"
+                                class="w-24 px-3 py-2 border rounded-lg text-sm">
+                        </div>
+                        <button onclick="handleAddMenu()"
+                            class="w-full bg-slate-900 text-white py-2 rounded-lg text-sm font-bold">Add Item</button>
+                    </div>
+                </div>
+
+                <!-- Orders List -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 min-h-[300px]">
+                    <div class="flex justify-between items-center mb-4 border-b border-gray-50 pb-4">
+                        <h3 class="font-bold text-slate-800">Incoming Orders</h3>
+                        <button onclick="fetchOwnerOrders()"
+                            class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-3 py-1.5 rounded-full font-bold transition-colors">Refresh
+                            ↻</button>
+                    </div>
+                    <div id="owner-orders-list" class="space-y-4"></div>
                 </div>
             </div>
         </div>
 
-        <!-- VIEW: OWNER DASHBOARD -->
-        <div id="view-owner" class="hidden min-h-screen bg-gray-50">
-            <!-- Topbar -->
-            <div class="bg-slate-800 text-white p-4 flex justify-between items-center sticky top-0 z-20">
-                <div class="flex items-center gap-3">
-                    <button onclick="showView('view-portal')" class="hover:bg-slate-700 p-2 rounded-lg">
-                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                    </button>
+        <!-- VIEW: ADMIN DASHBOARD -->
+        <div id="view-admin" class="hidden min-h-screen bg-slate-100 animate-fade-in">
+            <div class="bg-indigo-900 text-white p-6 shadow-lg">
+                <div class="flex justify-between items-center">
+                    <h1 class="font-bold text-xl">Admin Console</h1>
+                    <button onclick="handleLogout()" class="p-2 hover:bg-indigo-800 rounded-lg"><i data-lucide="log-out"
+                            class="w-5 h-5"></i></button>
+                </div>
+            </div>
+            <div class="p-4 space-y-6">
+                <div>
+                    <h3 class="font-bold text-slate-800 mb-2 uppercase text-xs tracking-wider">Restaurant Requests</h3>
+                    <div id="admin-requests-list" class="space-y-3"></div>
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-800 mb-2 uppercase text-xs tracking-wider">Active Restaurants</h3>
+                    <div id="admin-restaurants-list" class="space-y-3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal: Admin Restaurant Detail -->
+        <div id="modal-admin-resto-detail"
+            class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl max-w-md w-full max-h-[80vh] overflow-y-auto animate-slide-up">
+                <div class="sticky top-0 bg-white p-4 border-b flex justify-between items-center">
+                    <h3 class="text-xl font-bold" id="modal-resto-name">Restaurant</h3>
+                    <button onclick="closeAdminRestoModal()" class="p-2 hover:bg-gray-100 rounded-lg"><i data-lucide="x"
+                            class="w-5 h-5"></i></button>
+                </div>
+                <div class="p-4">
+                    <div class="mb-4">
+                        <p class="text-xs font-bold text-slate-500 uppercase mb-1">Owner</p>
+                        <p id="modal-resto-owner" class="text-sm text-slate-700">Loading...</p>
+                    </div>
                     <div>
-                        <h1 class="font-bold text-lg">Partner Dashboard</h1>
-                        <p class="text-xs text-slate-400">Nasi Goreng Mas Budi</p>
+                        <p class="text-xs font-bold text-slate-500 uppercase mb-2">Menus</p>
+                        <div id="modal-resto-menus" class="space-y-2"></div>
                     </div>
                 </div>
-                <div class="h-8 w-8 bg-slate-600 rounded-full flex items-center justify-center">
-                    <i data-lucide="chef-hat" class="w-4 h-4"></i>
-                </div>
             </div>
+        </div>
 
-            <!-- Stats -->
-            <div class="grid grid-cols-1 gap-4 p-4">
-                <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100">
-                    <div class="flex items-center gap-2 text-orange-500 mb-1">
-                        <i data-lucide="shopping-bag" class="w-4 h-4"></i> <span
-                            class="text-xs font-bold uppercase">Orders</span>
-                    </div>
-                    <p class="text-2xl font-bold text-slate-800" id="order-count-badge">0</p>
-                    <p class="text-xs text-slate-400">Total order</p>
-                </div>
-            </div>
-
-            <!-- Restaurant Tabs -->
-            <div id="owner-resto-tabs" class="px-4 mb-2 flex gap-2 overflow-x-auto no-scrollbar"></div>
-
-            <!-- Orders List -->
-            <div class="px-4 pb-10 space-y-3">
-                <div class="flex justify-between items-center mb-2">
-                    <h3 class="font-bold text-slate-700">Incoming Orders</h3>
-                    <button onclick="fetchOrders()"
-                        class="text-xs bg-slate-200 px-2 py-1 rounded hover:bg-slate-300">Refresh ↻</button>
-                </div>
-                <div id="owner-orders-list" class="space-y-3">
-                    <p class="text-center text-slate-400 py-10">No active orders</p>
+        <!-- Modal: Request Restaurant -->
+        <div id="modal-request-resto"
+            class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div class="bg-white rounded-2xl p-6 max-w-sm w-full animate-slide-up">
+                <h3 class="text-xl font-bold mb-4">Request Restaurant</h3>
+                <input id="request-resto-name" type="text" placeholder="Restaurant Name"
+                    class="w-full px-4 py-3 border rounded-xl mb-3">
+                <textarea id="request-resto-desc" placeholder="Description (Optional)"
+                    class="w-full px-4 py-3 border rounded-xl mb-4 resize-none h-20"></textarea>
+                <div class="flex gap-2">
+                    <button onclick="closeRequestModal()"
+                        class="flex-1 py-3 border-2 border-gray-200 rounded-xl font-bold text-gray-600">Cancel</button>
+                    <button onclick="submitRestaurantRequest()"
+                        class="flex-1 py-3 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600">Submit</button>
                 </div>
             </div>
         </div>
 
     </div>
 
-    <!-- LOGIC SCRIPT -->
     <script>
         lucide.createIcons();
         const GATEWAY_URL = 'http://localhost:4000';
-        const RESTAURANT_TABS = [
-            { id: "1", name: "Nasi Goreng Mafia" },
-            { id: "2", name: "Burger Kingkwong" },
-            { id: "3", name: "Sushi Tei-kwondo" },
-        ];
-        let STATE = {
-            cart: [],
-            currentRestaurant: null,
-            activeOrderId: null,
-            customerName: null,
-            ownerRestaurantFilter: RESTAURANT_TABS[0].id
+
+        const Auth = {
+            token: localStorage.getItem('token'),
+            user: JSON.parse(localStorage.getItem('user') || 'null'),
+            save(token, user) {
+                this.token = token; this.user = user;
+                localStorage.setItem('token', token); localStorage.setItem('user', JSON.stringify(user));
+            },
+            clear() {
+                this.token = null; this.user = null;
+                localStorage.removeItem('token'); localStorage.removeItem('user');
+            },
+            getHeader() { return this.token ? { 'Authorization': `Bearer ${this.token}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' }; }
         };
-        let pollingInterval = null;
 
-        // --- NAVIGATION ---
-        function setRole(role) {
-            document.getElementById('view-portal').classList.add('hidden');
-            if (role === 'customer') {
-                document.getElementById('view-customer').classList.remove('hidden');
-                showView('view-customer'); // Reset to home
-            } else {
-                document.getElementById('view-owner').classList.remove('hidden');
-                renderOwnerTabs();
-                fetchOrders();
-                // Auto-refresh for Owner
-                if (pollingInterval) clearInterval(pollingInterval);
-                pollingInterval = setInterval(fetchOrders, 5000);
-            }
-        }
+        const State = { cart: [], activeRestaurant: null, polling: null, ownerRestoId: null };
 
-        function showView(viewId) {
-            // Hide sub-sections
-            document.getElementById('section-restaurants').classList.add('hidden');
-            document.getElementById('section-menu').classList.add('hidden');
-            document.getElementById('section-tracking').classList.add('hidden');
-            document.getElementById('section-history').classList.add('hidden');
-            document.getElementById('btn-back-resto').classList.add('hidden');
-
-            // Portal & Owner logic
-            if (viewId === 'view-portal') {
-                document.getElementById('view-customer').classList.add('hidden');
-                document.getElementById('view-owner').classList.add('hidden');
-                document.getElementById('view-portal').classList.remove('hidden');
-                return;
-            }
-
-            // Customer Views
-            if (viewId === 'view-customer') {
-                document.getElementById('section-restaurants').classList.remove('hidden');
-                loadRestaurants();
-            }
-        }
-
-        // --- GRAPHQL HELPER ---
         async function graphql(query, variables = {}) {
             try {
                 const res = await fetch(GATEWAY_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query, variables })
+                    method: 'POST', headers: Auth.getHeader(), body: JSON.stringify({ query, variables })
                 });
                 const result = await res.json();
-                if (result.errors) {
-                    console.error('GraphQL Error:', result.errors);
-                    throw new Error(result.errors[0]?.message || 'GraphQL request failed');
-                }
+                if (result.errors) throw new Error(result.errors[0].message);
                 return result.data;
             } catch (e) {
-                console.error('Network Error:', e);
-                alert('Gagal terhubung ke server. Pastikan gateway berjalan.');
+                console.error("GraphQL Error:", e);
+                if (e.message.includes("Expired")) handleLogout();
                 return null;
             }
         }
 
-        // --- CUSTOMER LOGIC ---
-        async function loadRestaurants() {
-            const data = await graphql(`query { restaurants { id name image } }`);
-            if (!data) return;
-            document.getElementById('restaurants-list').innerHTML = data.restaurants.map(r => `
-                <div onclick="openMenu('${r.id}')" class="bg-white p-3 rounded-xl border border-gray-100 shadow-sm cursor-pointer hover:shadow-md transition-shadow flex gap-4">
-                    <img src="${r.image}" class="w-24 h-24 rounded-lg object-cover bg-gray-100">
-                    <div class="flex-1 py-1">
-                        <h3 class="font-bold text-lg text-gray-800">${r.name}</h3>
-                        <p class="text-xs text-gray-500 mb-2">Western • Indonesia</p>
-                        <div class="flex items-center gap-3 text-xs text-gray-500">
-                            <span class="flex items-center gap-1 bg-yellow-50 text-yellow-700 px-1.5 py-0.5 rounded">★ 4.8</span>
-                            <span class="flex items-center gap-1">⏰ 15-20 min</span>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+        function initApp() {
+            if (Auth.token && Auth.user) {
+                if (Auth.user.role === 'ADMIN') showView('view-admin');
+                else if (Auth.user.role === 'OWNER') showView('view-owner');
+                else showView('view-customer');
+            } else {
+                showView('view-auth');
+            }
+        }
+        function toggleAuthMode(mode) {
+            document.getElementById('form-login').classList.toggle('hidden', mode === 'register');
+            document.getElementById('form-register').classList.toggle('hidden', mode === 'login');
+        }
+        async function handleLogin() {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const mutation = `mutation Login($input: LoginInput!) { login(input: $input) { accessToken user { id name role email } } }`;
+            const data = await graphql(mutation, { input: { email, password } });
+            if (data?.login) { Auth.save(data.login.accessToken, data.login.user); initApp(); }
+            else alert("Login failed");
+        }
+        async function handleRegister() {
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const password = document.getElementById('reg-password').value;
+            const role = document.getElementById('reg-role').value;
+
+            const mutation = `mutation Register($input: RegisterInput!) { register(input: $input) { accessToken user { id name role } } }`;
+            const data = await graphql(mutation, { input: { name, email, password, role } });
+            if (data?.register) {
+                Auth.save(data.register.accessToken, data.register.user);
+                if (role === 'OWNER') alert("Account created! You can now request your restaurant.");
+                initApp();
+            }
+        }
+        function handleLogout() { Auth.clear(); clearInterval(State.polling); location.reload(); }
+
+        function showView(viewName) {
+            ['view-auth', 'view-customer', 'view-owner', 'view-admin'].forEach(id => document.getElementById(id).classList.add('hidden'));
+            document.getElementById(viewName).classList.remove('hidden');
+            if (viewName === 'view-customer') {
+                document.getElementById('customer-name-display').innerText = Auth.user?.name;
+                backToRestaurants();
+            }
+            else if (viewName === 'view-owner') initOwnerDashboard();
+            else if (viewName === 'view-admin') fetchAdminData();
         }
 
-        async function openMenu(id) {
+        // CUSTOMER
+        function backToRestaurants() {
+            document.getElementById('section-restaurants').classList.remove('hidden');
+            document.getElementById('section-menu').classList.add('hidden');
+            document.getElementById('section-tracking').classList.add('hidden');
+            document.getElementById('btn-back-resto').classList.add('hidden');
+            document.getElementById('cart-float').classList.add('hidden');
+            fetchRestaurants();
+        }
+        async function fetchRestaurants() {
+            const data = await graphql(`query { restaurants { id name image } }`);
+            const list = document.getElementById('restaurants-list');
+            if (!data?.restaurants?.length) { list.innerHTML = `<p class="text-center text-slate-400 py-4">No restaurants available.</p>`; return; }
+            list.innerHTML = data.restaurants.map(r => `
+                <div onclick="openRestaurant('${r.id}')" class="bg-white rounded-2xl p-3 shadow-md border border-gray-100 flex gap-4 cursor-pointer hover:scale-[1.02] transition-transform">
+                    <img src="${r.image}" class="w-24 h-24 rounded-xl object-cover bg-gray-200" onerror="this.src='https://via.placeholder.com/150'">
+                    <div class="flex-1 py-1"><h3 class="font-bold text-slate-800 text-lg">${r.name}</h3><p class="text-xs text-slate-400 mb-3">4.8 ★</p></div>
+                </div>`).join('');
+        }
+        async function openRestaurant(id) {
             const data = await graphql(`query($id: ID!) { restaurant(id: $id) { id name image menus { id name price } } }`, { id });
-            if (!data) return;
-
-            STATE.currentRestaurant = data.restaurant;
-            STATE.cart = [];
-            updateCartUI();
-
+            if (!data?.restaurant) return;
+            State.activeRestaurant = data.restaurant; State.cart = []; updateCartUI();
             document.getElementById('section-restaurants').classList.add('hidden');
             document.getElementById('section-menu').classList.remove('hidden');
             document.getElementById('btn-back-resto').classList.remove('hidden');
-
-            document.getElementById('menu-resto-name').innerText = STATE.currentRestaurant.name;
-            document.getElementById('menu-resto-img').src = STATE.currentRestaurant.image;
-            document.getElementById('menu-list').innerHTML = STATE.currentRestaurant.menus.map(m => `
-                <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
-                    <div><h4 class="font-bold text-gray-800">${m.name}</h4><p class="text-red-500 font-bold">Rp ${m.price.toLocaleString()}</p></div>
-                    <button onclick="addToCart('${m.name}', ${m.price})" class="bg-red-50 text-red-600 p-2 rounded-lg hover:bg-red-500 hover:text-white transition-colors"><i data-lucide="plus" class="w-5 h-5"></i></button>
-                </div>
-            `).join('');
+            document.getElementById('menu-resto-name').innerText = data.restaurant.name;
+            document.getElementById('menu-resto-img').src = data.restaurant.image || 'https://via.placeholder.com/500';
+            document.getElementById('menu-list').innerHTML = data.restaurant.menus.map(m => `
+                <div class="flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <div><h4 class="font-bold text-slate-800">${m.name}</h4><p class="text-red-500 font-bold text-sm">Rp ${m.price.toLocaleString()}</p></div>
+                    <button onclick="addToCart('${m.name}', ${m.price})" class="bg-white border border-gray-200 p-2 rounded-lg text-slate-600 hover:bg-slate-900 hover:text-white transition-colors"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                </div>`).join('');
             lucide.createIcons();
         }
-
         function addToCart(name, price) {
-            const existing = STATE.cart.find(item => item.name === name);
-            if (existing) {
-                existing.qty += 1;
-            } else {
-                STATE.cart.push({ name, price, qty: 1 });
-            }
+            const item = State.cart.find(i => i.name === name);
+            if (item) item.qty++; else State.cart.push({ name, price, qty: 1 });
             updateCartUI();
         }
-
         function updateCartUI() {
-            const count = STATE.cart.reduce((sum, item) => sum + item.qty, 0);
-            const total = STATE.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            document.getElementById('cart-count').innerText = count;
-            document.getElementById('cart-badge').innerText = count;
-            document.getElementById('cart-total').innerText = total.toLocaleString();
-            if (count > 0) {
-                document.getElementById('cart-badge').classList.remove('hidden');
-                document.getElementById('cart-float').classList.remove('hidden');
-            } else {
-                document.getElementById('cart-badge').classList.add('hidden');
-                document.getElementById('cart-float').classList.add('hidden');
-            }
+            const count = State.cart.reduce((a, b) => a + b.qty, 0);
+            const total = State.cart.reduce((a, b) => a + (b.price * b.qty), 0);
+            document.getElementById('cart-count').innerText = count; document.getElementById('cart-total').innerText = total.toLocaleString();
+            document.getElementById('cart-float').classList.toggle('hidden', count === 0);
         }
-
-        function placeOrder() {
-            if (!STATE.currentRestaurant || STATE.cart.length === 0) return;
-            // Show name input modal
-            document.getElementById('modal-name').classList.remove('hidden');
-            document.getElementById('input-customer-name').value = '';
-            document.getElementById('input-customer-name').focus();
+        async function placeOrder() {
+            if (!confirm("Place order now?")) return;
+            const items = State.cart.map(i => ({ name: i.name, price: i.price, quantity: i.qty }));
+            const data = await graphql(`mutation CreateOrder($rid: ID!, $items: [OrderItemInput]!) { createOrder(restaurantId: $rid, items: $items) { id } }`, { rid: State.activeRestaurant.id, items });
+            if (data?.createOrder) { State.cart = []; startTracking(data.createOrder.id); }
+            else alert("Failed to create order. Please try again.");
         }
-
-        function closeNameModal() {
-            document.getElementById('modal-name').classList.add('hidden');
-        }
-
-        async function confirmOrder() {
-            const nameInput = document.getElementById('input-customer-name');
-            const customerName = nameInput.value.trim();
-
-            if (!customerName) {
-                alert('Mohon masukkan nama Anda!');
-                nameInput.focus();
-                return;
-            }
-
-            STATE.customerName = customerName;
-            document.getElementById('modal-name').classList.add('hidden');
-
-            const mutation = `
-                mutation CreateOrder($restaurantId: ID!, $userId: String!, $items: [OrderItemInput]!) {
-                    createOrder(restaurantId: $restaurantId, userId: $userId, items: $items) {
-                        id
-                        status
-                    }
-                }
-            `;
-            const variables = {
-                restaurantId: STATE.currentRestaurant.id,
-                userId: customerName,
-                items: STATE.cart.map(item => ({
-                    name: item.name,
-                    price: item.price,
-                    quantity: item.qty || 1
-                }))
-            };
-
-            const data = await graphql(mutation, variables);
-
-            if (data) {
-                STATE.activeOrderId = data.createOrder.id;
-                document.getElementById('section-menu').classList.add('hidden');
-                document.getElementById('cart-float').classList.add('hidden');
-                document.getElementById('section-tracking').classList.remove('hidden');
-                document.getElementById('track-order-id').innerText = "#" + STATE.activeOrderId;
-
-                if (pollingInterval) clearInterval(pollingInterval);
-                pollingInterval = setInterval(trackOrder, 3000);
-            }
-        }
-
-        async function trackOrder() {
-            if (!STATE.activeOrderId) return;
-            const data = await graphql(`query { orders { id status delivery { driverName } } }`);
-            const order = data.orders.find(o => o.id == STATE.activeOrderId);
-
-            if (order) {
-                const statusEl = document.getElementById('track-status');
-                const barEl = document.getElementById('track-bar');
-                const driverEl = document.getElementById('track-driver');
-
-                statusEl.innerText = order.status;
-                if (order.status === 'PENDING') {
-                    statusEl.className = "text-2xl font-bold text-yellow-500";
-                    barEl.className = "h-full bg-yellow-500 w-1/3 transition-all duration-500";
-                    driverEl.innerText = "Waiting for restaurant confirmation...";
-                } else if (order.status === 'ACCEPTED') {
-                    statusEl.className = "text-2xl font-bold text-blue-500";
-                    barEl.className = "h-full bg-blue-500 w-2/3 transition-all duration-500";
-                    driverEl.innerText = "Kitchen is preparing your food...";
-                } else if (order.status === 'ON_THE_WAY') {
-                    statusEl.className = "text-2xl font-bold text-green-500";
-                    barEl.className = "h-full bg-green-500 w-full transition-all duration-500";
-                    driverEl.innerText = `Driver ${order.delivery?.driverName || 'Assigned'} is coming!`;
-                } else if (order.status === 'DELIVERED') {
-                    statusEl.className = "text-2xl font-bold text-emerald-600";
-                    barEl.className = "h-full bg-emerald-600 w-full transition-all duration-500";
-                    driverEl.innerHTML = `<span class="text-emerald-600">✅ Order delivered! Enjoy your meal!</span>`;
-                    // Stop polling when delivered
-                    if (pollingInterval) {
-                        clearInterval(pollingInterval);
-                        pollingInterval = null;
-                    }
-                }
-            }
-        }
-
-        // --- HISTORY FEATURE ---
-        async function showHistory() {
-            document.getElementById('section-restaurants').classList.add('hidden');
+        function startTracking(orderId) {
             document.getElementById('section-menu').classList.add('hidden');
-            document.getElementById('section-tracking').classList.add('hidden');
-            document.getElementById('section-history').classList.remove('hidden');
-            document.getElementById('btn-back-resto').classList.remove('hidden');
+            document.getElementById('cart-float').classList.add('hidden');
+            document.getElementById('section-tracking').classList.remove('hidden');
+            document.getElementById('track-order-id').innerText = "#" + orderId;
+            State.polling = setInterval(() => pollOrder(orderId), 3000);
+        }
+        async function pollOrder(orderId) {
+            const data = await graphql(`query($id: ID!) { order(id: $id) { id status delivery { driverName estimatedTime } } }`, { id: orderId });
+            const order = data?.order;
+            if (!order) return;
+            const msgs = { PENDING: 'Waiting for restaurant...', ACCEPTED: 'Cooking now 🔥', ON_THE_WAY: 'Driver is coming 🛵', DELIVERED: 'Enjoy your meal! ✅' };
+            const widths = { PENDING: '10%', ACCEPTED: '40%', ON_THE_WAY: '75%', DELIVERED: '100%' };
+            document.getElementById('track-status-title').innerText = order.status;
+            document.getElementById('track-message').innerText = msgs[order.status] || order.status;
+            document.getElementById('track-progress').style.width = widths[order.status] || '5%';
+            if (order.status === 'ON_THE_WAY') document.getElementById('track-message').innerText = `${order.delivery?.driverName} is coming (${order.delivery?.estimatedTime})`;
+            if (order.status === 'DELIVERED') clearInterval(State.polling);
+        }
 
-            const data = await graphql(`query { orders { id user_id total_price status items { name quantity } } }`);
-            if (!data) return;
+        // OWNER
+        async function initOwnerDashboard() {
+            document.getElementById('owner-name-display').innerText = Auth.user?.name;
+            await fetchMyRestaurants();
+            fetchOwnerOrders();
+            clearInterval(State.polling);
+            State.polling = setInterval(fetchOwnerOrders, 5000);
+        }
+        async function fetchMyRestaurants() {
+            const data = await graphql(`query { myRestaurants { id name menus { id name price available } } }`);
+            const list = document.getElementById('owner-resto-list');
+            const menuDiv = document.getElementById('owner-menu-manage');
+            const btnRequest = document.getElementById('btn-request-resto');
 
-            // Show all orders (no filtering by user since we want to see order history)
-            const myOrders = STATE.customerName
-                ? data.orders.filter(o => o.user_id === STATE.customerName).sort((a, b) => b.id - a.id)
-                : data.orders.sort((a, b) => b.id - a.id);
+            if (!data?.myRestaurants?.length) {
+                list.innerHTML = `<p>You don't have any active restaurants yet.</p>`;
+                menuDiv.classList.add('hidden');
+                btnRequest.classList.remove('hidden');
+            } else {
+                State.ownerRestoId = data.myRestaurants[0].id;
+                list.innerHTML = data.myRestaurants.map(r => `<div class="bg-slate-100 p-3 rounded-lg font-bold">${r.name}</div>`).join('');
+                menuDiv.classList.remove('hidden');
+                btnRequest.classList.add('hidden');
 
-            const container = document.getElementById('history-list');
-            if (myOrders.length === 0) {
-                container.innerHTML = '<p class="text-center text-gray-400 mt-10">Belum ada pesanan.</p>';
+                // Show existing menus
+                displayOwnerMenus(data.myRestaurants[0].menus || []);
+            }
+        }
+        function displayOwnerMenus(menus) {
+            const menuList = document.getElementById('owner-menu-list');
+            if (!menus.length) {
+                menuList.innerHTML = '<p class="text-sm text-gray-400">No menus yet. Add one below!</p>';
                 return;
             }
-
-            container.innerHTML = myOrders.map(o => `
-                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                    <div class="flex justify-between mb-2">
-                        <span class="font-bold text-gray-700">Order #${o.id}</span>
-                        <span class="text-xs px-2 py-1 rounded font-bold ${o.status === 'DELIVERED' ? 'bg-emerald-100 text-emerald-600' :
-                    o.status === 'ON_THE_WAY' ? 'bg-green-100 text-green-600' :
-                        'bg-gray-100 text-gray-600'
-                }">${o.status}</span>
+            menuList.innerHTML = menus.map(m => `
+                <div class="flex justify-between items-center bg-gray-50 p-3 rounded-lg border">
+                    <div class="flex-1">
+                        <p class="font-bold text-sm">${m.name}</p>
+                        <p class="text-xs text-gray-500">Rp ${m.price.toLocaleString()}</p>
                     </div>
-                    <p class="text-sm text-gray-500 mb-2">${formatItems(o.items)}</p>
-                    <p class="text-right font-bold text-red-500">Rp ${o.total_price.toLocaleString()}</p>
-                </div>
-            `).join('');
-        }
-
-        // --- OWNER LOGIC ---
-        async function fetchOrders() {
-            const data = await graphql(`query { orders { id status total_price restaurant_id user_id items { name quantity } delivery { driverName } } }`);
-            if (!data) return;
-
-            const orders = data.orders.sort((a, b) => b.id - a.id);
-            const filtered = STATE.ownerRestaurantFilter ? orders.filter(o => o.restaurant_id == STATE.ownerRestaurantFilter) : orders;
-            document.getElementById('order-count-badge').innerText = filtered.length;
-
-            const container = document.getElementById('owner-orders-list');
-            if (filtered.length === 0) { container.innerHTML = '<p class="text-center text-slate-400 py-10">No active orders</p>'; return; }
-
-            container.innerHTML = filtered.map(o => {
-                const resto = RESTAURANT_TABS.find(r => r.id === String(o.restaurant_id));
-                const customerLabel = o.user_id || 'Customer';
-                return `
-                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm animate-fade-in">
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <span class="text-xs font-bold text-slate-400 block mb-1">#${o.id}</span>
-                            <h3 class="font-bold text-lg text-slate-800">${customerLabel}</h3>
-                            ${resto ? `<p class="text-xs text-slate-400 mb-1">${resto.name}</p>` : ''}
-                            <p class="text-sm text-slate-600">${formatItems(o.items)}</p>
-                        </div>
-                        <span class="px-2 py-1 text-xs rounded font-bold ${o.status === 'PENDING' ? 'bg-yellow-100 text-yellow-600' :
-                        o.status === 'ACCEPTED' ? 'bg-blue-100 text-blue-600' :
-                            o.status === 'ON_THE_WAY' ? 'bg-green-100 text-green-600' :
-                                'bg-emerald-100 text-emerald-600'
-                    }">${o.status}</span>
+                    <div class="flex gap-1">
+                        <button onclick="editMenu('${m.id}', '${m.name}', ${m.price})" class="p-1.5 bg-blue-100 text-blue-600 rounded hover:bg-blue-200"><i data-lucide="edit-2" class="w-3 h-3"></i></button>
+                        <button onclick="deleteMenu('${m.id}')" class="p-1.5 bg-red-100 text-red-600 rounded hover:bg-red-200"><i data-lucide="trash-2" class="w-3 h-3"></i></button>
                     </div>
-                    <div class="border-t border-gray-100 my-3 pt-3 flex justify-between items-center">
-                        <span class="font-bold text-slate-700">Rp ${o.total_price.toLocaleString()}</span>
-                        <div class="flex gap-2">
-                            ${o.status === 'PENDING' ? `<button onclick="updateStatus('${o.id}', 'ACCEPTED')" class="px-3 py-1 bg-blue-500 text-white rounded-lg text-sm font-bold hover:bg-blue-600">Accept</button>` : ''}
-                            ${o.status === 'ACCEPTED' ? `<button onclick="assignDriver('${o.id}')" class="px-3 py-1 bg-green-500 text-white rounded-lg text-sm font-bold hover:bg-green-600">Call Driver</button>` : ''}
-                            ${o.status === 'ON_THE_WAY' ? `<span class="text-xs text-slate-400">Driver: ${o.delivery?.driverName}</span>` : ''}
-                            ${o.status === 'DELIVERED' ? `<span class="text-xs text-emerald-600 font-bold">✅ Completed</span>` : ''}
-                        </div>
-                    </div>
-                </div>
-            `;
-            }).join('');
+                </div>`).join('');
+            lucide.createIcons();
         }
-
-        async function updateStatus(id, status) {
-            await graphql(`mutation($id: ID!, $status: String!) { updateOrderStatus(orderId: $id, status: $status) { id } }`, { id, status });
-            fetchOrders();
+        function showRequestModal() {
+            document.getElementById('modal-request-resto').classList.remove('hidden');
         }
-
-        async function assignDriver(id) {
-            await graphql(`mutation($id: ID!) { assignDriver(orderId: $id) { driverName } }`, { id });
-            fetchOrders();
+        function closeRequestModal() {
+            document.getElementById('modal-request-resto').classList.add('hidden');
         }
+        async function submitRestaurantRequest() {
+            const name = document.getElementById('request-resto-name').value;
+            const desc = document.getElementById('request-resto-desc').value;
+            if (!name) return alert("Restaurant name required");
 
-        function formatItems(items = []) {
-            const map = {};
-            items.forEach(item => {
-                const qty = item.quantity || item.qty || 1;
-                map[item.name] = (map[item.name] || 0) + qty;
+            const data = await graphql(`mutation($name: String!, $desc: String) { createRestaurantRequest(name: $name, description: $desc) { id status } }`, { name, desc });
+            if (data?.createRestaurantRequest) {
+                alert("Request submitted! Waiting for admin approval.");
+                closeRequestModal();
+                document.getElementById('request-resto-name').value = '';
+                document.getElementById('request-resto-desc').value = '';
+            }
+        }
+        async function handleAddMenu() {
+            const name = document.getElementById('new-menu-name').value;
+            const price = parseInt(document.getElementById('new-menu-price').value);
+            if (!name || !price || !State.ownerRestoId) return;
+
+            const data = await graphql(`mutation AddMenu($rid: ID!, $name: String!, $price: Int!) { addMenu(restaurantId: $rid, name: $name, price: $price) { id } }`,
+                { rid: State.ownerRestoId, name, price });
+
+            if (data?.addMenu) {
+                alert("Menu added!");
+                document.getElementById('new-menu-name').value = '';
+                document.getElementById('new-menu-price').value = '';
+                fetchMyRestaurants(); // Refresh menu list
+            }
+        }
+        function editMenu(id, name, price) {
+            const newName = prompt("Edit Menu Name:", name);
+            if (!newName) return;
+            const newPrice = parseInt(prompt("Edit Price:", price));
+            if (!newPrice) return;
+
+            graphql(`mutation($id: ID!, $name: String, $price: Int) { updateMenu(menuId: $id, name: $name, price: $price) { id } }`,
+                { id, name: newName, price: newPrice }).then(data => {
+                    if (data?.updateMenu) {
+                        alert("Menu updated!");
+                        fetchMyRestaurants();
+                    }
+                });
+        }
+        function deleteMenu(id) {
+            if (!confirm("Delete this menu?")) return;
+            graphql(`mutation($id: ID!) { deleteMenu(menuId: $id) { id } }`, { id }).then(data => {
+                if (data?.deleteMenu) {
+                    alert("Menu deleted!");
+                    fetchMyRestaurants();
+                }
             });
-            return Object.entries(map).map(([name, qty]) => `${qty}x ${name}`).join(', ');
+        }
+        async function fetchOwnerOrders() {
+            // Get my restaurants first to filter
+            const myData = await graphql(`query { myRestaurants { id } }`);
+            const myRestoIds = myData?.myRestaurants?.map(r => r.id) || [];
+
+            const data = await graphql(`query { orders { id restaurant_id status total_price items { name quantity } delivery { driverName } } }`);
+            const list = document.getElementById('owner-orders-list');
+            if (!data?.orders) return;
+
+            // Filter orders by my restaurants
+            const myOrders = data.orders.filter(o => myRestoIds.includes(o.restaurant_id)).sort((a, b) => b.id - a.id);
+            if (!myOrders.length) { list.innerHTML = '<p class="text-center text-gray-400">No orders.</p>'; return; }
+
+            list.innerHTML = myOrders.map(o => `
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <div class="flex justify-between mb-2">
+                        <span class="font-bold text-sm">#${o.id}</span>
+                        <span class="px-2 py-1 bg-white rounded text-xs border font-bold">${o.status}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">${o.items.map(i => `${i.quantity}x ${i.name}`).join(', ')}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold">Rp ${o.total_price.toLocaleString()}</span>
+                        <div class="flex gap-2">
+                            ${o.status === 'PENDING' ? `<button onclick="updateStatus('${o.id}','ACCEPTED')" class="bg-blue-600 text-white px-3 py-1 rounded text-xs">Accept</button>` : ''}
+                            ${o.status === 'ACCEPTED' ? `<button onclick="assignDriver('${o.id}')" class="bg-green-600 text-white px-3 py-1 rounded text-xs">Driver</button>` : ''}
+                        </div>
+                    </div>
+                </div>`).join('');
+        }
+        async function updateStatus(id, status) { await graphql(`mutation($id: ID!, $status: String!) { updateOrderStatus(orderId: $id, status: $status) { id } }`, { id, status }); fetchOwnerOrders(); }
+        async function assignDriver(id) { await graphql(`mutation($id: ID!) { assignDriver(orderId: $id) { driverName } }`, { id }); fetchOwnerOrders(); }
+
+        // ADMIN
+        async function fetchAdminData() {
+            const reqData = await graphql(`query { restaurantRequests(status: "PENDING") { id name description user_id } }`);
+            const reqList = document.getElementById('admin-requests-list');
+            if (!reqData?.restaurantRequests?.length) reqList.innerHTML = '<p class="text-sm text-gray-400">No pending requests.</p>';
+            else {
+                reqList.innerHTML = reqData.restaurantRequests.map(r => `
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-orange-100">
+                        <h4 class="font-bold text-slate-800">${r.name}</h4>
+                        <p class="text-xs text-slate-500 mb-2">${r.description || 'No description'}</p>
+                        <div class="flex gap-2">
+                            <button onclick="approveRequest('${r.id}')" class="bg-green-600 text-white text-xs px-3 py-1.5 rounded-md font-bold hover:bg-green-700">Approve</button>
+                            <button onclick="rejectRequest('${r.id}')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-md font-bold hover:bg-red-100">Reject</button>
+                        </div>
+                    </div>`).join('');
+            }
+
+            const restoData = await graphql(`query { restaurants { id name } }`);
+            const restoList = document.getElementById('admin-restaurants-list');
+            if (restoData?.restaurants) {
+                restoList.innerHTML = restoData.restaurants.map(r => `
+                    <div onclick="showRestoDetail('${r.id}')" class="bg-white p-3 rounded-lg border border-gray-100 flex justify-between items-center cursor-pointer hover:bg-gray-50">
+                        <span class="font-bold text-sm text-slate-700">${r.name}</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                    </div>`).join('');
+                lucide.createIcons();
+            }
+        }
+        async function showRestoDetail(id) {
+            const data = await graphql(`query($id: ID!) { restaurant(id: $id) { id name image ownerId menus { name price } } }`, { id });
+            if (!data?.restaurant) return;
+
+            document.getElementById('modal-resto-name').innerText = data.restaurant.name;
+
+            // Display owner ID
+            const ownerIdValue = data.restaurant.ownerId;
+            document.getElementById('modal-resto-owner').innerText = ownerIdValue ? `Owner ID: ${ownerIdValue}` : 'No owner assigned';
+
+            const menuHtml = data.restaurant.menus?.length
+                ? data.restaurant.menus.map(m => `<div class="bg-gray-50 p-2 rounded"><p class="font-bold text-sm">${m.name}</p><p class="text-xs text-gray-500">Rp ${m.price.toLocaleString()}</p></div>`).join('')
+                : '<p class="text-sm text-gray-400">No menus yet.</p>';
+
+            document.getElementById('modal-resto-menus').innerHTML = menuHtml;
+            document.getElementById('modal-admin-resto-detail').classList.remove('hidden');
+            lucide.createIcons();
+        }
+        function closeAdminRestoModal() {
+            document.getElementById('modal-admin-resto-detail').classList.add('hidden');
+        }
+        async function approveRequest(id) {
+            if (!confirm("Approve this restaurant?")) return;
+            const data = await graphql(`mutation($id: ID!) { approveRestaurantRequest(requestId: $id) { id status } }`, { id });
+            if (data?.approveRestaurantRequest) fetchAdminData();
+        }
+        async function rejectRequest(id) {
+            if (!confirm("Reject?")) return;
+            await graphql(`mutation($id: ID!) { rejectRestaurantRequest(requestId: $id) { id } }`, { id });
+            fetchAdminData();
         }
 
-        function renderOwnerTabs() {
-            const container = document.getElementById('owner-resto-tabs');
-            if (!container) return;
-            container.innerHTML = RESTAURANT_TABS.map(tab => `
-                <button 
-                    onclick="setOwnerRestaurant('${tab.id}')"
-                    class="px-4 py-2 rounded-full text-sm font-semibold border ${STATE.ownerRestaurantFilter === tab.id ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 border-slate-200'}">
-                    ${tab.name}
-                </button>
-            `).join('');
-        }
-
-        function setOwnerRestaurant(id) {
-            STATE.ownerRestaurantFilter = id;
-            renderOwnerTabs();
-            fetchOrders();
-        }
-
-        renderOwnerTabs();
-
+        initApp();
     </script>
 </body>
 

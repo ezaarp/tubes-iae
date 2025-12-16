@@ -7,7 +7,13 @@
 # If you want to keep README.md tracked, uncomment the next line:
 !README.md
 
-# Explicit entries preserved for reference
-/API_DOCUMENTATION.md
-/GRAPHQL_QUERIES.md
-/GRAPHQL_REFERENCE.md
+
+node_modules/
+.env
+dist/
+coverage/
+__pycache__/
+
+# Backups (Unused)
+restaurant-service-nodejs-backup/
+/migrations/*

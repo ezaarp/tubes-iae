@@ -1,61 +1,90 @@
-const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
+const redis = require('redis');
 
-class Database {
-    constructor() {
-        if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
-            throw new Error('❌ FATAL: Supabase credentials missing! Please set SUPABASE_URL and SUPABASE_KEY in .env file');
-        }
+const REDIS_URL = process.env.REDIS_URL;
 
-        console.log('🔌 Connecting to Supabase...');
-        this.supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+if (!REDIS_URL) {
+    throw new Error('❌ Missing Redis URL. Please set REDIS_URL in .env');
+}
+
+let redisClient;
+
+async function connectRedis() {
+    if (redisClient && redisClient.isOpen) {
+        return redisClient;
     }
 
-    async assignDriver(orderId) {
-        // 3 Specific Drivers available for assignment
-        const drivers = [
-            'Andi (Motor 1)',
-            'Budi (Motor 2)',
-            'Citra (Motor 3)'
-        ];
-        const randomDriver = drivers[Math.floor(Math.random() * drivers.length)];
+    try {
+        redisClient = redis.createClient({
+            url: REDIS_URL
+        });
 
-        const { data, error } = await this.supabase.from('deliveries').insert({
-            order_id: orderId,
-            driver_name: randomDriver,
-            status: 'ON_THE_WAY',
-            estimated_time: '15 mins'
-        }).select().single();
+        redisClient.on('error', (err) => console.error('Redis Client Error', err));
 
-        if (error) {
-            console.error('❌ Failed to assign driver in database:', error.message);
-            throw new Error(`Database insert failed: ${error.message}`);
-        }
-
-        // Map back to camelCase for API response
-        return {
-            ...data,
-            driverName: data.driver_name,
-            estimatedTime: data.estimated_time
-        };
-    }
-
-    async getDeliveryByOrderId(orderId) {
-        const { data, error } = await this.supabase.from('deliveries').select('*').eq('order_id', orderId).single();
-        if (error && error.code !== 'PGRST116') {
-            console.error(`❌ Failed to fetch delivery for order ${orderId} from database:`, error.message);
-            throw new Error(`Database fetch failed: ${error.message}`);
-        }
-        if (!data) return null;
-
-        return {
-            ...data,
-            driverName: data.driver_name,
-            estimatedTime: data.estimated_time
-        };
+        await redisClient.connect();
+        console.log('✅ Connected to Redis');
+        return redisClient;
+    } catch (error) {
+        console.error('❌ Redis connection failed:', error);
+        throw error;
     }
 }
 
-module.exports = new Database();
+// Assign driver to order
+async function assignDriver(orderId) {
+    const client = await connectRedis();
 
+    // 3 Specific Drivers available for assignment
+    const drivers = [
+        'Andi (Motor 1)',
+        'Budi (Motor 2)',
+        'Citra (Motor 3)'
+    ];
+    const randomDriver = drivers[Math.floor(Math.random() * drivers.length)];
 
+    const delivery = {
+        orderId: orderId,
+        driverName: randomDriver,
+        status: 'ON_THE_WAY',
+        estimatedTime: '15 mins'
+    };
+
+    // Store in Redis with hash
+    const key = `delivery:${orderId}`;
+    await client.hSet(key, {
+        orderId: delivery.orderId,
+        driverName: delivery.driverName,
+        status: delivery.status,
+        estimatedTime: delivery.estimatedTime
+    });
+
+    // Set expiry to 24 hours
+    await client.expire(key, 86400);
+
+    return delivery;
+}
+
+// Get delivery by order ID
+async function getDeliveryByOrderId(orderId) {
+    const client = await connectRedis();
+    const key = `delivery:${orderId}`;
+
+    const delivery = await client.hGetAll(key);
+
+    if (!delivery || Object.keys(delivery).length === 0) {
+        return null;
+    }
+
+    return {
+        orderId: delivery.orderId,
+        driverName: delivery.driverName,
+        status: delivery.status,
+        estimatedTime: delivery.estimatedTime
+    };
+}
+
+module.exports = {
+    connectRedis,
+    assignDriver,
+    getDeliveryByOrderId
+};

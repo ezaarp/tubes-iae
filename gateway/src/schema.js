@@ -1,4 +1,24 @@
 const typeDefs = `#graphql
+  enum Role {
+    CUSTOMER
+    OWNER
+    ADMIN
+  }
+
+  type User {
+    id: ID!
+    email: String!
+    name: String
+    role: Role!
+    restaurantIds: [ID]
+  }
+
+  type AuthPayload {
+    accessToken: String!
+    refreshToken: String!
+    user: User!
+  }
+
   type Menu {
     id: ID
     name: String
@@ -9,6 +29,7 @@ const typeDefs = `#graphql
     id: ID
     name: String
     image: String
+    ownerId: String
     menus: [Menu]
   }
 
@@ -35,6 +56,7 @@ const typeDefs = `#graphql
   }
 
   type Query {
+    me: User
     restaurants: [Restaurant]
     restaurant(id: ID!): Restaurant
     orders: [Order]
@@ -48,12 +70,73 @@ const typeDefs = `#graphql
     quantity: Int!
   }
 
+  input RegisterInput {
+    email: String!
+    password: String!
+    name: String!
+    role: Role
+  }
+
+  input RegisterOwnerInput {
+    email: String!
+    password: String!
+    name: String!
+    restaurantName: String!
+    restaurantDescription: String
+  }
+
+  input LoginInput {
+    email: String!
+    password: String!
+  }
+
+  type RestaurantRequest {
+    id: ID!
+    user_id: ID!
+    name: String!
+    description: String
+    status: String!
+    created_at: String
+  }
+
   type Mutation {
-    createOrder(restaurantId: ID!, userId: String!, items: [OrderItemInput]!): Order
+    register(input: RegisterInput!): AuthPayload
+    registerOwner(input: RegisterOwnerInput!): AuthPayload
+    login(input: LoginInput!): AuthPayload
+    refreshToken(refreshToken: String!): AuthPayload
+    
+    # Order
+    createOrder(restaurantId: ID!, items: [OrderItemInput]!): Order
     updateOrderStatus(orderId: ID!, status: String!): Order
     assignDriver(orderId: ID!): Delivery
+    
+    # Admin
+    approveRestaurantRequest(requestId: ID!): RestaurantRequest
+    rejectRestaurantRequest(requestId: ID!): RestaurantRequest
+    
+    # Owner
+    createRestaurantRequest(name: String!, description: String): RestaurantRequest
+    addMenu(restaurantId: ID!, name: String!, price: Int!): Menu
+    updateMenu(menuId: ID!, name: String, price: Int, available: Boolean): Menu
+    deleteMenu(menuId: ID!): Menu
+  }
+
+  type Query {
+    me: User
+    restaurants: [Restaurant]
+    restaurant(id: ID!): Restaurant
+    orders: [Order]
+    order(id: ID!): Order
+    delivery(orderId: ID!): Delivery
+    
+    # Admin
+    restaurantRequests(status: String): [RestaurantRequest]
+    
+    # Owner
+    myRestaurants: [Restaurant]
   }
 `;
 
 module.exports = typeDefs;
+
 

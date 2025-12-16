@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const db = require('./db');
+const { authenticateToken, requireRole, optionalAuth } = require('./middleware');
 
 const app = express();
 const PORT = process.env.PORT || 5002;
@@ -8,12 +9,13 @@ const PORT = process.env.PORT || 5002;
 app.use(cors());
 app.use(express.json());
 
-// Create Order
-app.post('/orders', async (req, res) => {
+// Create Order (CUSTOMER only, authenticated)
+app.post('/orders', authenticateToken, requireRole('CUSTOMER'), async (req, res) => {
     try {
         // Expects: { restaurantId, items: [{name, price, quantity}], userId }
-        const { restaurantId, items, userId } = req.body;
-        
+        const { restaurantId, items } = req.body;
+        const userId = req.user.userId; // Get from JWT token
+
         if (!items || items.length === 0) {
             return res.status(400).json({ error: 'No items provided' });
         }
@@ -33,11 +35,30 @@ app.post('/orders', async (req, res) => {
     }
 });
 
-// Get All Orders
-app.get('/orders', async (req, res) => {
+// Get All Orders (role-based filtering)
+app.get('/orders', optionalAuth, async (req, res) => {
     try {
-        const orders = await db.getOrders();
-        res.json(orders);
+        const allOrders = await db.getOrders();
+
+        // Filter based on role
+        let filteredOrders = allOrders;
+
+        if (req.user) {
+            if (req.user.role === 'CUSTOMER') {
+                // Customer sees only their own orders
+                filteredOrders = allOrders.filter(o => o.user_id === req.user.userId);
+            } else if (req.user.role === 'OWNER') {
+                // Owner sees orders for their restaurants
+                const { restaurantIds } = req.query;
+                if (restaurantIds) {
+                    const ids = restaurantIds.split(',');
+                    filteredOrders = allOrders.filter(o => ids.includes(String(o.restaurant_id)));
+                }
+            }
+            // ADMIN sees all orders (no filtering)
+        }
+
+        res.json(filteredOrders);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -54,8 +75,8 @@ app.get('/orders/:id', async (req, res) => {
     }
 });
 
-// Update Order Status
-app.put('/orders/:id/status', async (req, res) => {
+// Update Order Status (OWNER/ADMIN only)
+app.put('/orders/:id/status', authenticateToken, requireRole('OWNER', 'ADMIN'), async (req, res) => {
     try {
         const { status } = req.body;
         const order = await db.updateOrderStatus(req.params.id, status);
