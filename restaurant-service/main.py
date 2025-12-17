@@ -21,10 +21,12 @@ class RestaurantCreate(BaseModel):
     name: str
     image: Optional[str] = None
     ownerId: str
+    description: Optional[str] = None
 
 class RestaurantUpdate(BaseModel):
     name: Optional[str] = None
     image: Optional[str] = None
+    description: Optional[str] = None
 
 class MenuCreate(BaseModel):
     name: str
@@ -70,7 +72,7 @@ def get_restaurant(restaurant_id: str):
 @app.post("/restaurants")
 def create_restaurant(data: RestaurantCreate, user: dict = Depends(require_role("ADMIN"))):
     try:
-        restaurant = db.create_restaurant(data.name, data.image, data.ownerId)
+        restaurant = db.create_restaurant(data.name, data.image, data.ownerId, data.description)
         return restaurant
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -94,6 +96,8 @@ def update_restaurant(restaurant_id: str, data: RestaurantUpdate, user: dict = D
             updates["name"] = data.name
         if data.image is not None:
             updates["image"] = data.image
+        if data.description is not None:
+            updates["description"] = data.description
         
         restaurant = db.update_restaurant(restaurant_id, updates)
         if not restaurant:

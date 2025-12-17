@@ -101,12 +101,18 @@ async function createRestaurantOwner({ userId, restaurantId }) {
 
 // Get restaurants owned by user
 async function getRestaurantsByOwnerId(userId) {
+    console.log(`[DB] Querying restaurant_owners for user_id: ${userId}`);
     const { data, error } = await supabase
         .from('restaurant_owners')
         .select('restaurant_id')
         .eq('user_id', userId);
 
-    if (error) throw error;
+    if (error) {
+        console.error(`[DB] Error fetching restaurant_owners:`, error);
+        throw error;
+    }
+    
+    console.log(`[DB] Found ${data.length} mappings:`, data);
     return data.map(r => r.restaurant_id);
 }
 

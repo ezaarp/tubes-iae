@@ -5,6 +5,24 @@ const RESTAURANT_SERVICE = process.env.RESTAURANT_SERVICE_URL || 'http://localho
 const ORDER_SERVICE = process.env.ORDER_SERVICE_URL || 'http://localhost:5002';
 const DELIVERY_SERVICE = process.env.DELIVERY_SERVICE_URL || 'http://localhost:5003';
 
+const buildAuthHeaders = (user) => {
+  if (!user?.token) return {};
+  return { Authorization: `Bearer ${user.token}` };
+};
+
+const fetchOwnerRestaurantIds = async (user) => {
+  if (!user || user.role !== 'OWNER') return [];
+  try {
+    const res = await axios.get(`${AUTH_SERVICE}/auth/me`, {
+      headers: buildAuthHeaders(user)
+    });
+    return res.data.restaurantIds || [];
+  } catch (error) {
+    console.error('Failed to fetch owner restaurants:', error.message);
+    return [];
+  }
+};
+
 const resolvers = {
   Query: {
     me: async (_, __, { user }) => {
@@ -40,18 +58,31 @@ const resolvers = {
         throw new Error(`Restaurant with ID ${id} not found or service unavailable`);
       }
     },
-    orders: async () => {
+    orders: async (_, __, { user }) => {
+      if (!user) throw new Error("Unauthorized");
       try {
-        const res = await axios.get(`${ORDER_SERVICE}/orders`);
+        let url = `${ORDER_SERVICE}/orders`;
+        if (user.role === 'OWNER') {
+          const ids = await fetchOwnerRestaurantIds(user);
+          if (ids.length) {
+            url += `?restaurantIds=${ids.join(',')}`;
+          }
+        }
+        const res = await axios.get(url, {
+          headers: buildAuthHeaders(user)
+        });
         return res.data;
       } catch (error) {
         console.error("Error fetching orders:", error.message);
         throw new Error("Failed to fetch orders service");
       }
     },
-    order: async (_, { id }) => {
+    order: async (_, { id }, { user }) => {
+      if (!user) throw new Error("Unauthorized");
       try {
-        const res = await axios.get(`${ORDER_SERVICE}/orders/${id}`);
+        const res = await axios.get(`${ORDER_SERVICE}/orders/${id}`, {
+          headers: buildAuthHeaders(user)
+        });
         return res.data;
       } catch (error) {
         console.error(`Error fetching order ${id}:`, error.message);
@@ -85,19 +116,33 @@ const resolvers = {
     myRestaurants: async (_, __, { user }) => {
       if (!user) throw new Error("Unauthorized");
       try {
+        console.log(`[Gateway] Fetching myRestaurants for user ${user.userId}`);
+        
         const meRes = await axios.get(`${AUTH_SERVICE}/auth/me`, {
           headers: { Authorization: `Bearer ${user.token}` }
         });
 
+        console.log(`[Gateway] User restaurantIds:`, meRes.data.restaurantIds);
+
         const ids = meRes.data.restaurantIds || [];
-        if (ids.length === 0) return [];
+        if (ids.length === 0) {
+          console.log(`[Gateway] No restaurants found for user ${user.userId}`);
+          return [];
+        }
 
         const promises = ids.map(id =>
-          axios.get(`${RESTAURANT_SERVICE}/restaurants/${id}`).then(r => r.data).catch(() => null)
+          axios.get(`${RESTAURANT_SERVICE}/restaurants/${id}`).then(r => r.data).catch(err => {
+            console.error(`[Gateway] Failed to fetch restaurant ${id}:`, err.message);
+            return null;
+          })
         );
         const results = await Promise.all(promises);
-        return results.filter(r => r !== null);
+        const validRestaurants = results.filter(r => r !== null);
+        
+        console.log(`[Gateway] Returning ${validRestaurants.length} restaurants`);
+        return validRestaurants;
       } catch (error) {
+        console.error('[Gateway] myRestaurants error:', error.message);
         throw new Error("Failed to fetch my restaurants");
       }
     }
@@ -176,21 +221,61 @@ const resolvers = {
         throw new Error("Failed to create order. Please try again.");
       }
     },
-    updateOrderStatus: async (_, { orderId, status }) => {
+    updateOrderStatus: async (_, { orderId, status }, { user }) => {
+      if (!user) {
+        throw new Error("Unauthorized");
+      }
+      
+      // Allow CUSTOMER to mark their own order as DELIVERED (for auto-complete simulation)
+      if (user.role === 'CUSTOMER' && status === 'DELIVERED') {
+        try {
+          // Verify order belongs to user
+          const orderRes = await axios.get(`${ORDER_SERVICE}/orders/${orderId}`, {
+            headers: buildAuthHeaders(user)
+          });
+          
+          if (orderRes.data.user_id !== user.userId) {
+            throw new Error("Unauthorized: Cannot update other user's order");
+          }
+          
+          const res = await axios.put(`${ORDER_SERVICE}/orders/${orderId}/status`, { status }, {
+            headers: buildAuthHeaders(user)
+          });
+          return res.data;
+        } catch (error) {
+          console.error(`Error updating order ${orderId}:`, error.message);
+          throw new Error("Failed to update order status");
+        }
+      }
+      
+      // OWNER and ADMIN can update to any status
+      if (!['OWNER', 'ADMIN'].includes(user.role)) {
+        throw new Error("Unauthorized");
+      }
+      
       try {
-        const res = await axios.put(`${ORDER_SERVICE}/orders/${orderId}/status`, { status });
+        const res = await axios.put(`${ORDER_SERVICE}/orders/${orderId}/status`, { status }, {
+          headers: buildAuthHeaders(user)
+        });
         return res.data;
       } catch (error) {
         console.error(`Error updating order ${orderId}:`, error.message);
         throw new Error("Failed to update order status");
       }
     },
-    assignDriver: async (_, { orderId }) => {
+    assignDriver: async (_, { orderId }, { user }) => {
+      if (!user || user.role !== 'OWNER') {
+        throw new Error("Unauthorized");
+      }
       try {
-        const res = await axios.post(`${DELIVERY_SERVICE}/delivery/assign`, { orderId });
+        const res = await axios.post(`${DELIVERY_SERVICE}/delivery/assign`, { orderId }, {
+          headers: buildAuthHeaders(user)
+        });
 
         try {
-          await axios.put(`${ORDER_SERVICE}/orders/${orderId}/status`, { status: 'ON_THE_WAY' });
+          await axios.put(`${ORDER_SERVICE}/orders/${orderId}/status`, { status: 'ON_THE_WAY' }, {
+            headers: buildAuthHeaders(user)
+          });
         } catch (e) {
           console.warn("Warning: Failed to update order status after assigning driver", e.message);
         }
@@ -205,21 +290,28 @@ const resolvers = {
       if (!user || user.role !== 'ADMIN') throw new Error("Unauthorized");
 
       try {
+        console.log(`[Gateway] Approving request ${requestId}`);
+        
         const requestsRes = await axios.get(`${AUTH_SERVICE}/auth/restaurant-requests?status=PENDING`, {
           headers: { Authorization: `Bearer ${user.token}` }
         });
         const request = requestsRes.data.find(r => r.id === requestId);
 
         if (!request) throw new Error("Request not found or already processed");
+        
+        console.log(`[Gateway] Found request:`, request);
 
         const newRestoRes = await axios.post(`${RESTAURANT_SERVICE}/restaurants`, {
           name: request.name,
           image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500",
-          ownerId: request.user_id
+          ownerId: request.user_id,
+          description: request.description || ''
         }, {
           headers: { Authorization: `Bearer ${user.token}` }
         });
         const newRestoId = newRestoRes.data.id || newRestoRes.data._id;
+        
+        console.log(`[Gateway] Created restaurant with ID: ${newRestoId}`);
 
         const approveRes = await axios.put(`${AUTH_SERVICE}/auth/restaurant-requests/${requestId}`, {
           status: 'APPROVED',
@@ -227,11 +319,13 @@ const resolvers = {
         }, {
           headers: { Authorization: `Bearer ${user.token}` }
         });
+        
+        console.log(`[Gateway] Request approved successfully`);
 
         return approveRes.data.request;
       } catch (error) {
-        console.error("Error approving request:", error.message);
-        throw new Error("Failed to approve request");
+        console.error("Error approving request:", error.response?.data || error.message);
+        throw new Error("Failed to approve request: " + (error.response?.data?.error || error.message));
       }
     },
     rejectRestaurantRequest: async (_, { requestId }, { user }) => {
@@ -300,6 +394,48 @@ const resolvers = {
         return { id: menuId };
       } catch (error) {
         throw new Error("Failed to delete menu");
+      }
+    }
+  },
+  Restaurant: {
+    owner: async (parent, _, { user }) => {
+      if (!parent.ownerId) return null;
+      try {
+        const res = await axios.get(`${AUTH_SERVICE}/auth/user/${parent.ownerId}`, {
+          headers: buildAuthHeaders(user)
+        });
+        return res.data;
+      } catch (error) {
+        if (error.response && (error.response.status === 403 || error.response.status === 401)) {
+          return {
+            id: parent.ownerId,
+            name: 'Restaurant Owner',
+            email: '',
+            role: 'OWNER',
+            restaurantIds: []
+          };
+        }
+        console.error(`Error fetching owner for restaurant ${parent.id}:`, error.message);
+        return {
+          id: parent.ownerId,
+          name: 'Restaurant Owner',
+          email: '',
+          role: 'OWNER',
+          restaurantIds: []
+        };
+      }
+    },
+    menus: async (parent) => {
+      // Return menus if already included in parent, otherwise return empty array
+      if (parent.menus) return parent.menus;
+      
+      // Fetch menus from restaurant service if not included
+      try {
+        const res = await axios.get(`${RESTAURANT_SERVICE}/restaurants/${parent.id}`);
+        return res.data?.menus || [];
+      } catch (error) {
+        console.error(`[Gateway] Error fetching menus for restaurant ${parent.id}:`, error.message);
+        return [];
       }
     }
   },

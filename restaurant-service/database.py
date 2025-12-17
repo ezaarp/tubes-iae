@@ -36,6 +36,7 @@ def get_restaurants():
             "id": str(r["_id"]),
             "name": r["name"],
             "image": r.get("image", ""),
+            "description": r.get("description", ""),
             "ownerId": r.get("ownerId", ""),
             "status": r.get("status", "APPROVED")
         }
@@ -53,6 +54,7 @@ def get_restaurant_by_id(restaurant_id: str):
         "id": str(restaurant["_id"]),
         "name": restaurant["name"],
         "image": restaurant.get("image", ""),
+        "description": restaurant.get("description", ""),
         "ownerId": restaurant.get("ownerId", ""),
         "status": restaurant.get("status", "APPROVED")
     }
@@ -72,19 +74,23 @@ def get_menus_by_restaurant_id(restaurant_id: str):
         for m in menus
     ]
 
-def create_restaurant(name: str, image: str, owner_id: str):
+def create_restaurant(name: str, image: str, owner_id: str, description: str = ""):
     database = get_database()
-    result = database.restaurants.insert_one({
+    payload = {
         "name": name,
         "image": image or "https://via.placeholder.com/150",
+        "description": description or "",
         "ownerId": owner_id,
         "status": "APPROVED"
-    })
+    }
+    result = database.restaurants.insert_one(payload)
     
+    # Return clean dict without any ObjectId
     return {
         "id": str(result.inserted_id),
         "name": name,
-        "image": image,
+        "image": image or "https://via.placeholder.com/150",
+        "description": description or "",
         "ownerId": owner_id,
         "status": "APPROVED"
     }

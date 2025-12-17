@@ -1,4 +1,4 @@
-services:
+giservices:
   auth-service:
     build: ./auth-service
     ports:

@@ -23,13 +23,16 @@ const typeDefs = `#graphql
     id: ID
     name: String
     price: Int
+    available: Boolean
   }
 
   type Restaurant {
     id: ID
     name: String
     image: String
+    description: String
     ownerId: String
+    owner: User
     menus: [Menu]
   }
 
@@ -51,6 +54,7 @@ const typeDefs = `#graphql
     user_id: String
     total_price: Int
     status: String
+    created_at: String
     items: [OrderItem]
     delivery: Delivery
   }
@@ -62,6 +66,8 @@ const typeDefs = `#graphql
     orders: [Order]
     order(id: ID!): Order
     delivery(orderId: ID!): Delivery
+    restaurantRequests(status: String): [RestaurantRequest]
+    myRestaurants: [Restaurant]
   }
 
   input OrderItemInput {
@@ -121,20 +127,6 @@ const typeDefs = `#graphql
     deleteMenu(menuId: ID!): Menu
   }
 
-  type Query {
-    me: User
-    restaurants: [Restaurant]
-    restaurant(id: ID!): Restaurant
-    orders: [Order]
-    order(id: ID!): Order
-    delivery(orderId: ID!): Delivery
-    
-    # Admin
-    restaurantRequests(status: String): [RestaurantRequest]
-    
-    # Owner
-    myRestaurants: [Restaurant]
-  }
 `;
 
 module.exports = typeDefs;

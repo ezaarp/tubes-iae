@@ -206,7 +206,9 @@ app.get('/auth/me', authenticateToken, async (req, res) => {
         // Get restaurant IDs if owner
         let restaurantIds = [];
         if (user.role === 'OWNER') {
+            console.log(`[Auth] Fetching restaurants for owner ${user.id}`);
             restaurantIds = await getRestaurantsByOwnerId(user.id);
+            console.log(`[Auth] Found ${restaurantIds.length} restaurants:`, restaurantIds);
         }
 
         res.json({
@@ -219,6 +221,41 @@ app.get('/auth/me', authenticateToken, async (req, res) => {
     } catch (error) {
         console.error('Get user error:', error);
         res.status(500).json({ error: 'Failed to get user info' });
+    }
+});
+
+// Get user by ID (admin or self)
+app.get('/auth/user/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const isSelf = req.user.userId === id;
+        const isAdmin = req.user.role === 'ADMIN';
+
+        if (!isSelf && !isAdmin) {
+            return res.status(403).json({ error: 'Insufficient permissions' });
+        }
+
+        const user = await findUserById(id);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        let restaurantIds = [];
+        if (user.role === 'OWNER') {
+            restaurantIds = await getRestaurantsByOwnerId(user.id);
+        }
+
+        res.json({
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            restaurantIds
+        });
+    } catch (error) {
+        console.error('Get user by id error:', error);
+        res.status(500).json({ error: 'Failed to fetch user info' });
     }
 });
 
@@ -277,18 +314,23 @@ app.put('/auth/restaurant-requests/:id', authenticateToken, requireRole('ADMIN')
         const { id } = req.params;
         const { status, restaurantId } = req.body;
 
+        console.log(`[Auth] Updating request ${id} to ${status}, restaurantId: ${restaurantId}`);
+
         if (!['APPROVED', 'REJECTED'].includes(status)) {
             return res.status(400).json({ error: 'Invalid status' });
         }
 
         const request = await updateRestaurantRequestStatus(id, status);
+        console.log(`[Auth] Request updated:`, request);
 
         // If approved and restaurantId provided, create owner mapping
         if (status === 'APPROVED' && restaurantId) {
-            await createRestaurantOwner({
+            console.log(`[Auth] Creating restaurant_owner mapping: userId=${request.user_id}, restaurantId=${restaurantId}`);
+            const mapping = await createRestaurantOwner({
                 userId: request.user_id,
                 restaurantId: restaurantId
             });
+            console.log(`[Auth] Mapping created:`, mapping);
         }
 
         res.json({
@@ -297,7 +339,7 @@ app.put('/auth/restaurant-requests/:id', authenticateToken, requireRole('ADMIN')
         });
     } catch (error) {
         console.error('Update request error:', error);
-        res.status(500).json({ error: 'Failed to update restaurant request' });
+        res.status(500).json({ error: 'Failed to update restaurant request', details: error.message });
     }
 });
 
