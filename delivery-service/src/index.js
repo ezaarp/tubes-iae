@@ -22,13 +22,13 @@ app.post('/delivery/assign', async (req, res) => {
         // Auto-complete delivery after 5 seconds
         setTimeout(async () => {
             try {
-                console.log(`🚚 Auto-completing delivery for order ${orderId}...`);
+                console.log(`Auto-completing delivery for order ${orderId}...`);
                 await axios.put(`${ORDER_SERVICE_URL}/orders/${orderId}/status`, {
                     status: 'DELIVERED'
                 });
-                console.log(`✅ Order ${orderId} marked as DELIVERED`);
+                console.log(`Order ${orderId} marked as DELIVERED`);
             } catch (err) {
-                console.error(`❌ Failed to auto-complete order ${orderId}:`, err.message);
+                console.error(`Failed to auto-complete order ${orderId}:`, err.message);
             }
         }, 5000); // 5 seconds delay
 
@@ -50,7 +50,7 @@ app.get('/delivery/:orderId', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Delivery Service running on port ${PORT}`);
+    console.log(`Delivery Service running on port ${PORT}`);
 });
 
 

@@ -228,7 +228,7 @@ const resolvers = {
       
       // Allow CUSTOMER to mark their own order as DELIVERED (for auto-complete simulation)
       if (user.role === 'CUSTOMER' && status === 'DELIVERED') {
-        try {
+      try {
           // Verify order belongs to user
           const orderRes = await axios.get(`${ORDER_SERVICE}/orders/${orderId}`, {
             headers: buildAuthHeaders(user)
@@ -339,6 +339,40 @@ const resolvers = {
         return res.data.request;
       } catch (error) {
         throw new Error("Failed to reject request");
+      }
+    },
+    createRestaurant: async (_, { name, description, image }, { user }) => {
+      if (!user || user.role !== 'OWNER') throw new Error("Unauthorized - Owner only");
+      try {
+        console.log(`[Gateway] Owner ${user.userId} creating restaurant: ${name}`);
+        
+        // Create restaurant directly (no admin approval needed)
+        const restoRes = await axios.post(`${RESTAURANT_SERVICE}/restaurants`, {
+          name,
+          description: description || '',
+          image: image || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=500",
+          ownerId: user.userId
+        }, {
+          headers: { Authorization: `Bearer ${user.token}` }
+        });
+        
+        const newRestoId = restoRes.data.id || restoRes.data._id;
+        console.log(`[Gateway] Restaurant created with ID: ${newRestoId}`);
+        
+        // Create owner-restaurant mapping in auth service
+        await axios.post(`${AUTH_SERVICE}/auth/restaurant-owner`, {
+          userId: user.userId,
+          restaurantId: newRestoId.toString()
+        }, {
+          headers: { Authorization: `Bearer ${user.token}` }
+        });
+        
+        console.log(`[Gateway] Owner-restaurant mapping created`);
+        
+        return restoRes.data;
+      } catch (error) {
+        console.error("Error creating restaurant:", error.response?.data || error.message);
+        throw new Error("Failed to create restaurant: " + (error.response?.data?.error || error.message));
       }
     },
     addMenu: async (_, { restaurantId, name, price }, { user }) => {

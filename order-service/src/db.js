@@ -4,7 +4,7 @@ require('dotenv').config();
 class Database {
     constructor() {
         if (!process.env.SUPABASE_URL || !process.env.SUPABASE_KEY) {
-            throw new Error('❌ FATAL: Supabase credentials missing! Please set SUPABASE_URL and SUPABASE_KEY in .env file');
+            throw new Error('FATAL: Supabase credentials missing! Please set SUPABASE_URL and SUPABASE_KEY in .env file');
         }
 
         console.log('🔌 Connecting to Supabase...');
@@ -29,7 +29,7 @@ class Database {
     async getOrders() {
         const { data, error } = await this.supabase.from('orders').select('*');
         if (error) {
-            console.error('❌ Failed to fetch orders from database:', error.message);
+            console.error('Failed to fetch orders from database:', error.message);
             throw new Error(`Database fetch failed: ${error.message}`);
         }
         return data;
@@ -38,7 +38,7 @@ class Database {
     async getOrderById(id) {
         const { data, error } = await this.supabase.from('orders').select('*').eq('id', id).single();
         if (error) {
-            console.error(`❌ Failed to fetch order ${id} from database:`, error.message);
+            console.error(`Failed to fetch order ${id} from database:`, error.message);
             throw new Error(`Database fetch failed: ${error.message}`);
         }
         return data;
@@ -52,7 +52,7 @@ class Database {
             .select()
             .single();
         if (error) {
-            console.error(`❌ Failed to update order ${id} status in database:`, error.message);
+            console.error(`Failed to update order ${id} status in database:`, error.message);
             throw new Error(`Database update failed: ${error.message}`);
         }
         return data;

@@ -68,9 +68,17 @@ def get_restaurant(restaurant_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# Create restaurant (ADMIN only)
+# Create restaurant (ADMIN or OWNER)
 @app.post("/restaurants")
-def create_restaurant(data: RestaurantCreate, user: dict = Depends(require_role("ADMIN"))):
+def create_restaurant(data: RestaurantCreate, user: dict = Depends(verify_token)):
+    # Allow ADMIN to create for any owner, OWNER to create for themselves
+    if user.get("role") == "OWNER":
+        # Owner can only create restaurant for themselves
+        if data.ownerId != user.get("userId"):
+            raise HTTPException(status_code=403, detail="Owners can only create restaurants for themselves")
+    elif user.get("role") != "ADMIN":
+        raise HTTPException(status_code=403, detail="Insufficient permissions")
+    
     try:
         restaurant = db.create_restaurant(data.name, data.image, data.ownerId, data.description)
         return restaurant

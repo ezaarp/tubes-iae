@@ -308,6 +308,35 @@ app.get('/auth/restaurant-requests', authenticateToken, requireRole('ADMIN'), as
     }
 });
 
+// Create restaurant-owner mapping (OWNER only - for direct restaurant creation)
+app.post('/auth/restaurant-owner', authenticateToken, requireRole('OWNER'), async (req, res) => {
+    try {
+        const { userId, restaurantId } = req.body;
+        
+        // Verify owner is creating mapping for themselves
+        if (userId !== req.user.userId) {
+            return res.status(403).json({ error: 'Cannot create mapping for other users' });
+        }
+
+        console.log(`[Auth] Creating restaurant_owner mapping: userId=${userId}, restaurantId=${restaurantId}`);
+        
+        const mapping = await createRestaurantOwner({
+            userId,
+            restaurantId
+        });
+        
+        console.log(`[Auth] Mapping created:`, mapping);
+        
+        res.json({
+            message: 'Restaurant-owner mapping created',
+            mapping
+        });
+    } catch (error) {
+        console.error('Create restaurant-owner mapping error:', error);
+        res.status(500).json({ error: 'Failed to create mapping', details: error.message });
+    }
+});
+
 // Approve/reject restaurant request (ADMIN only)
 app.put('/auth/restaurant-requests/:id', authenticateToken, requireRole('ADMIN'), async (req, res) => {
     try {
@@ -344,5 +373,5 @@ app.put('/auth/restaurant-requests/:id', authenticateToken, requireRole('ADMIN')
 });
 
 app.listen(PORT, () => {
-    console.log(`🔐 Auth Service running on port ${PORT}`);
+    console.log(`Auth Service running on port ${PORT}`);
 });

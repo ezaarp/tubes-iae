@@ -8,7 +8,7 @@ load_dotenv()
 MONGODB_URI = os.getenv("MONGODB_URI")
 
 if not MONGODB_URI:
-    raise Exception("❌ Missing MongoDB URI. Please set MONGODB_URI in .env")
+    raise Exception(" Missing MongoDB URI. Please set MONGODB_URI in .env")
 
 client = None
 db = None
@@ -24,7 +24,7 @@ def get_database():
         print("✅ Connected to MongoDB")
         return db
     except Exception as error:
-        print(f"❌ MongoDB connection failed: {error}")
+        print(f"MongoDB connection failed: {error}")
         raise error
 
 def get_restaurants():

@@ -121,6 +121,7 @@ const typeDefs = `#graphql
     rejectRestaurantRequest(requestId: ID!): RestaurantRequest
     
     # Owner
+    createRestaurant(name: String!, description: String, image: String): Restaurant
     createRestaurantRequest(name: String!, description: String): RestaurantRequest
     addMenu(restaurantId: ID!, name: String!, price: Int!): Menu
     updateMenu(menuId: ID!, name: String, price: Int, available: Boolean): Menu

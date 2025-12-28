@@ -4,7 +4,7 @@ const redis = require('redis');
 const REDIS_URL = process.env.REDIS_URL;
 
 if (!REDIS_URL) {
-    throw new Error('❌ Missing Redis URL. Please set REDIS_URL in .env');
+    throw new Error('Missing Redis URL. Please set REDIS_URL in .env');
 }
 
 let redisClient;
@@ -22,10 +22,10 @@ async function connectRedis() {
         redisClient.on('error', (err) => console.error('Redis Client Error', err));
 
         await redisClient.connect();
-        console.log('✅ Connected to Redis');
+        console.log('Connected to Redis');
         return redisClient;
     } catch (error) {
-        console.error('❌ Redis connection failed:', error);
+        console.error('Redis connection failed:', error);
         throw error;
     }
 }

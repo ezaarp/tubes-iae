@@ -88,7 +88,7 @@ app.put('/orders/:id/status', authenticateToken, requireRole('OWNER', 'ADMIN'), 
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Order Service running on port ${PORT}`);
+    console.log(`Order Service running on port ${PORT}`);
 });
 
 

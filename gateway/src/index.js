@@ -32,5 +32,5 @@ startStandaloneServer(server, {
     methods: ['GET', 'POST', 'OPTIONS'],
   },
 }).then(({ url }) => {
-  console.log(`🚀 Gateway ready at ${url}`);
+  console.log(`Gateway ready at ${url}`);
 });
